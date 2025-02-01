@@ -8,6 +8,7 @@ import AdminPage from "./pages/admin/Admin";
 import AddUser from "./pages/admin/AddUser";
 import SendBill from "./pages/admin/SendBill";
 import MessBillEntry from "./pages/user/Entry";
+import UserBill from "./pages/admin/Dashboard";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -20,6 +21,7 @@ const router = createHashRouter([
       { path: "/admin/addUser", element: <AddUser /> },
       { path: "/admin/sendBill", element: <SendBill /> },
       { path: "/user", element: <MessBillEntry /> },
+      { path: "/userBill", element: <UserBill /> },
     ],
   },
 ]);

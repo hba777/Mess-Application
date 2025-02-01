@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db, auth } from "../../firebase"; // Adjust this import based on your firebase config
 import { ToastContainer,toast } from 'react-toastify';
 import logo from "../../assets/MCS.jpg";
 
@@ -39,130 +36,29 @@ const LoginPage = () => {
         setIsLoading(false);
         return;
       }
-  
-      const auth = getAuth();
-  
-      // Check if the user is authenticated
-      if (auth.currentUser) {
-        console.log("User already authenticated:", auth.currentUser.email);
-        await ensureFirestoreData(auth.currentUser, role, pushToken);
-        await getSelfInfo();
-        _navigateBasedOnRole();
-        setIsLoading(false);
-        return;
-      }
-  
-      try {
-        // Try to create a new user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-  
-        console.log("User created successfully:", user.uid);
-  
-        if (!user.emailVerified) {
-          await sendEmailVerification(user);
-          toast.info("Verification email sent. Please check your inbox.", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          setIsLoading(false);
-          return;
-        }
-  
-        // Create Firestore entry for the user
-        await ensureFirestoreData(user, role, pushToken);
-  
-        await getSelfInfo();
-        _navigateBasedOnRole();
-        setIsLoading(false);
-      } catch (createError) {
-        console.log("Error creating user, attempting to sign in...");
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const user = userCredential.user;
-  
-          if (!user.emailVerified) {
-            await sendEmailVerification(user);
-            setError("Verification email sent. Please check your email and verify your account.");
-            setIsLoading(false);
-            return;
-          }
-  
-          // Ensure Firestore data exists
-          await ensureFirestoreData(user, role, pushToken);
-  
-          await getSelfInfo();
-          _navigateBasedOnRole();
-          setIsLoading(false);
-        } catch (e) {
-          if (e.code === "auth/wrong-password") {
-            setError("Incorrect password.");
-          } else {
-            setError(`Error: ${e.message}`);
-          }
-          setIsLoading(false);
-        }
-      }
-    } catch (e) {
-      console.log("Login error:", e);
-      setError(`Error: ${e}`);
-      setIsLoading(false);
-    }
-  };
-  
-  const ensureFirestoreData = async (user, role, pushToken) => {
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
-  
-    if (!userDoc.exists()) {
-      const time = Date.now().toString();
-      await setDoc(userDocRef, {
-        id: user.uid,
-        email: user.email,
-        role: role || "user", // Default to "user"
-        created_at: time,
-        pushToken: pushToken || "",
-      });
-      console.log("User data created in Firestore.");
-    } else {
-      console.log("User data already exists in Firestore.");
-    }
-  };  
 
-  const getSelfInfo = async () => {
-    if (auth.currentUser) {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        console.log("User data:", userData);
-        return userData;
-      } else {
-        throw new Error("User data not found.");
-      }
-    }
+      navigate("/Dashboard");
+    }catch(e){ 
+      console.error("Login error:", e);
+      setError(`Error: ${e}`);
+     }
   };
 
-  const _navigateBasedOnRole = async () => {
-    try {
-      const userData = await getSelfInfo();
-      if (userData.role === "admin") {
-        navigate("/admin");
-      } else if (userData.role === "user") {
-        navigate("/user");
-      } else {
-        setError("User role is not defined.");
-      }
-    } catch (e) {
-      console.error("Navigation error:", e);
-      setError(`Error: ${e}`);
-    }
-  };
+  // const _navigateBasedOnRole = async () => {
+  //   try {
+  //     const userData = await getSelfInfo();
+  //     if (userData.role === "admin") {
+  //       navigate("/admin");
+  //     } else if (userData.role === "user") {
+  //       navigate("/user");
+  //     } else {
+  //       setError("User role is not defined.");
+  //     }
+  //   } catch (e) {
+  //     console.error("Navigation error:", e);
+  //     setError(`Error: ${e}`);
+  //   }
+  // };
 
   const handleSubmit = (e) => {
     e.preventDefault();
