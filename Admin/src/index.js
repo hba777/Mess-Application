@@ -19,10 +19,10 @@ const router = createHashRouter([
     element: <App />, // App is used as a layout
     children: [
       { path: "/", element: <LoginPage /> },
-      { path: "/admin", element: <AdminPage /> },
-      { path: "/admin/addUser", element: <AddUser /> },
-      { path: "/admin/sendBill", element: <SendBill /> },
-      { path: "/user", element: <MessBillEntry /> },
+      // { path: "/admin", element: <AdminPage /> },
+      // { path: "/admin/addUser", element: <AddUser /> },
+      // { path: "/admin/sendBill", element: <SendBill /> },
+      // { path: "/user", element: <MessBillEntry /> },
       { path: "/adminDashboard", element: <Admin /> },
       { path: "/addBills", element: <AddBills /> },
       { path: "/verifyBills", element: <VerifyBills /> },
