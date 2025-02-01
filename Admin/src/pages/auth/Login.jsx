@@ -37,7 +37,7 @@ const LoginPage = () => {
         return;
       }
 
-      navigate("/Dashboard");
+      navigate("/adminDashboard");
     }catch(e){ 
       console.error("Login error:", e);
       setError(`Error: ${e}`);
