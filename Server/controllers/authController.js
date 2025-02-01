@@ -1,42 +1,43 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const pool = require("../db"); // PostgreSQL connection
+const pool = require("../db/db.js");
 
-// Admin login
 const loginAdmin = async (req, res) => {
   try {
-    const { loginid, password } = req.body;
+    const { cmsid, password } = req.body;
 
-    // Find admin by loginid (since admin is the only user type)
-    const admin = await pool.query("SELECT * FROM admin WHERE loginid = $1", [
-      loginid,
-    ]);
+    // Check if cmsid exists in the database
+    const userQuery = "SELECT * FROM admin WHERE cmsid = $1";
+    const user = await pool.query(userQuery, [cmsid]);
 
-    if (admin.rows.length === 0) {
-      return res.status(400).send("Invalid credentials");
+    if (user.rows.length === 0) {
+      return res.status(400).json({ message: "Invalid CMS ID or password" });
     }
 
-    // Compare passwords
-    const validPassword = await bcrypt.compare(
+    // Compare the password with the hashed password stored in the database
+    const isPasswordValid = await bcrypt.compare(
       password,
-      admin.rows[0].password
+      user.rows[0].password
     );
-    if (!validPassword) {
-      return res.status(400).send("Invalid credentials");
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid CMS ID or password" });
     }
 
-    // Create JWT token with the admin's id and role
+    // Generate a JWT token
     const token = jwt.sign(
-      { id: admin.rows[0].id, role: "admin" },
-      process.env.JWT_SECRET,
+      { id: user.rows[0].id, cmsid: user.rows[0].cmsid },
+      process.env.JWT_SECRET || "secretkey",
       { expiresIn: "1h" }
     );
 
+    // Send response with token
     res.json({ message: "Login successful", token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = { loginAdmin };
+module.exports = {
+  loginAdmin,
+};
