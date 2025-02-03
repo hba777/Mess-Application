@@ -1,31 +1,29 @@
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const pool = require("../config/db");
+const { queryDb } = require("../config/db"); // Assuming queryDb is your DB query method
 
 const loginAdmin = async (req, res) => {
   try {
     const { cmsid, password } = req.body;
 
-    // Check if cmsid exists in the database
+    // Query to get the admin by cmsid
     const userQuery = "SELECT * FROM admin WHERE cmsid = $1";
-    const user = await pool.query(userQuery, [cmsid]);
+    const result = await queryDb(userQuery, [cmsid]);
 
-    if (user.rows.length === 0) {
+    // Check if the user was found
+    if (result.length === 0) {
       return res.status(400).json({ message: "Invalid CMS ID or password" });
     }
 
-    // Compare the password with the hashed password stored in the database
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.rows[0].password
-    );
-    if (!isPasswordValid) {
+    const user = result[0];
+
+    // Compare the entered password directly with the stored password (no hashing)
+    if (password !== user.password) {
       return res.status(400).json({ message: "Invalid CMS ID or password" });
     }
 
     // Generate a JWT token
     const token = jwt.sign(
-      { id: user.rows[0].id, cmsid: user.rows[0].cmsid },
+      { id: user.id, cmsid: user.cmsid },
       process.env.JWT_SECRET || "secretkey",
       { expiresIn: "1h" }
     );
