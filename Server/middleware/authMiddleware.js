@@ -1,40 +1,54 @@
-const passport = require("passport");
-const { Strategy, ExtractJwt } = require("passport-jwt");
 const jwt = require("jsonwebtoken");
-const pool = require("../db");
+const { queryDb } = require("../config/db"); // Import the queryDb function
 
-// JWT Passport Strategy Setup
-passport.use(
-  new Strategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
-    },
-    async (jwt_payload, done) => {
-      try {
-        const user = await pool.query("SELECT * FROM admin WHERE id = $1", [
-          jwt_payload.id,
-        ]);
-        if (user.rows.length === 0) {
-          return done(null, false); // User not found
-        }
-        return done(null, user.rows[0]); // User found
-      } catch (err) {
-        return done(err, false);
-      }
-    }
-  )
-);
+// Middleware to authenticate JWT and attach user info to request object
+const authenticateJWT = async (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1]; // Expecting "Bearer <token>"
 
-// JWT Authentication Middleware (Passport)
-const authenticateJWT = passport.authenticate("jwt", { session: false });
-
-// Function to check if the user is an admin
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    return next(); // User is admin, proceed to the next route
+  if (!token) {
+    return res
+      .status(403)
+      .json({ message: "Access denied. No token provided." });
   }
-  return res.status(403).json({ message: "Forbidden: You are not an admin" });
+
+  try {
+    // Verify the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Attach user data from JWT payload to the request object
+    next();
+  } catch (err) {
+    console.error("JWT Authentication error:", err);
+    return res.status(400).json({ message: "Invalid or expired token." });
+  }
+};
+
+// Middleware to check if the user is an Admin
+const isAdmin = async (req, res, next) => {
+  const userId = req.user.id; // User ID from decoded JWT payload
+
+  try {
+    // Query the database to find the user and check if they have the 'admin' role
+    const user = await queryDb("SELECT * FROM admin WHERE cmsid = $1", [
+      userId,
+    ]);
+
+    if (!user || user.length === 0) {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+
+    // Check if the user is an admin (assuming the "admin" field or logic based on your requirements)
+    if (user[0].role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+
+    next(); // User is an admin, proceed to the next middleware or route handler
+  } catch (err) {
+    console.error("Error in isAdmin middleware:", err);
+    return res.status(500).json({
+      message: "Server error while checking admin status.",
+      error: err,
+    });
+  }
 };
 
 module.exports = { authenticateJWT, isAdmin };
