@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { generateToken } = require("../config/passport");
 const { queryDb } = require("../config/db"); // Import the queryDb function
 
 // Login Admin
@@ -6,24 +7,18 @@ const loginAdmin = async (req, res) => {
   const { cmsid, password } = req.body;
 
   try {
-    // Query the database for the admin with the given cmsid
     const result = await queryDb("SELECT * FROM admin WHERE cmsid = $1", [
       cmsid,
     ]);
 
-    if (!result || result.length === 0) {
+    if (!result || result.length === 0 || password !== result[0].password) {
       return res.status(401).json({ message: "Invalid CMS ID or password" });
     }
 
-    const admin = result[0]; // Assuming you get the admin data from the first entry
+    const admin = result[0];
+    const token = generateToken(admin); // Generate JWT
 
-    // Compare the raw password from the request with the stored password in the database
-    if (password !== admin.password) {
-      return res.status(401).json({ message: "Invalid CMS ID or password" });
-    }
-
-    // Login success, return token or success message (you can include a JWT here)
-    res.status(200).json({ message: "Login successful", admin });
+    res.status(200).json({ message: "Login successful", token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
