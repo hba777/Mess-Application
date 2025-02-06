@@ -6,7 +6,7 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/adminRoutes");
-// const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const { connectDb, closeDb } = require("./config/db");
 const restrictIp = require("./middleware/ipMiddleware");
@@ -37,6 +37,7 @@ app.use(restrictIp); // Make sure it's used correctly
 
 // Routes
 app.use("/api/admin", authRoutes); // Admin routes (protected)
+app.use("/api/user", userRoutes); // Admin routes (protected)
 
 // Database connection
 (async () => {

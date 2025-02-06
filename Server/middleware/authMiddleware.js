@@ -24,20 +24,15 @@ const authenticateJWT = async (req, res, next) => {
 
 // Middleware to check if the user is an Admin
 const isAdmin = async (req, res, next) => {
-  const userId = req.user.id; // User ID from decoded JWT payload
+  const cmsid = req.user.cmsid; // Extract CMS ID from decoded JWT payload
 
   try {
-    // Query the database to find the user and check if they have the 'admin' role
-    const user = await queryDb("SELECT * FROM admin WHERE cmsid = $1", [
-      userId,
+    // Query the admin table to check if the user exists
+    const admin = await queryDb("SELECT * FROM admin WHERE cmsid = $1", [
+      cmsid,
     ]);
 
-    if (!user || user.length === 0) {
-      return res.status(403).json({ message: "Access denied. Admins only." });
-    }
-
-    // Check if the user is an admin (assuming the "admin" field or logic based on your requirements)
-    if (user[0].role !== "admin") {
+    if (!admin || admin.length === 0) {
       return res.status(403).json({ message: "Access denied. Admins only." });
     }
 
@@ -51,4 +46,25 @@ const isAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticateJWT, isAdmin };
+// Middleware to check if the user is a regular user
+const isUser = async (req, res, next) => {
+  const cmsid = req.user.cmsid; // Extract CMS ID from decoded JWT payload
+
+  try {
+    const user = await queryDb("SELECT * FROM users WHERE cmsid = $1", [cmsid]);
+
+    if (!user || user.length === 0) {
+      return res.status(403).json({ message: "Access denied. Users only." });
+    }
+
+    next(); // User exists, proceed to the next middleware or route handler
+  } catch (err) {
+    console.error("Error in isUser middleware:", err);
+    return res.status(500).json({
+      message: "Server error while checking user status.",
+      error: err,
+    });
+  }
+};
+
+module.exports = { authenticateJWT, isAdmin, isUser };

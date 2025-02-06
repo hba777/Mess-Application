@@ -47,17 +47,17 @@ const closeDb = async () => {
 const queryDb = async (queryText, params = []) => {
   try {
     if (process.env.USE_SUPABASE === "true") {
-      // Supabase query
-      const { data, error } = await dbClient
-        .from("admin")
-        .select()
-        .eq("cmsid", params[0]);
-      if (error) throw new Error(error.message);
-      return data; // Supabase returns 'data' on successful query
+      // Supabase query - Example: querying 'admin' table
+      const { data, error } = await dbClient.from("admin").select("*");
+      if (error) {
+        console.error("❌ Error querying Supabase:", error);
+        throw error;
+      }
+      return data; // Return the result from Supabase query
     } else {
-      // PostgreSQL query
+      // PostgreSQL query syntax
       const result = await dbClient.query(queryText, params);
-      return result.rows; // PostgreSQL returns 'rows' in the result
+      return result.rows; // Return the result rows from PostgreSQL
     }
   } catch (error) {
     console.error("❌ Error querying database:", error);
