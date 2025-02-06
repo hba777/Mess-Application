@@ -11,6 +11,7 @@ import MessBillEntry from "./pages/user/Entry";
 import Admin from "./pages/admin/Admin";
 import AddBills from "./components/dashboard/AddBills";
 import VerifyBills from "./components/dashboard/VerifyBills";
+import LandingPage from "./pages/admin/Landing";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -18,7 +19,8 @@ const router = createHashRouter([
     path: "/",
     element: <App />, // App is used as a layout
     children: [
-      { path: "/", element: <LoginPage /> },
+      { path: "/", element: <LandingPage /> },
+      { path: "/login", element: <LoginPage /> },
       // { path: "/admin", element: <AdminPage /> },
       // { path: "/admin/addUser", element: <AddUser /> },
       // { path: "/admin/sendBill", element: <SendBill /> },

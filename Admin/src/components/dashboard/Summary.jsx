@@ -26,7 +26,7 @@ const Summary = () => {
   ];
 
   return (
-    // <div className="p-4 bg-gray-200 min-h-screen">
+    // <div className="p-4 bg-gray-500 min-h-screen">
     //   <h1 className="text-2xl font-bold mb-4 text-black font-serif</h1>
     //   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     //     {departments.map((department, index) => (
@@ -45,11 +45,11 @@ const Summary = () => {
     //   </div>
 
 // Oper wala uncomment kar lena yaar when using with endpoints
-    <div className="p-4 bg-gray-200 min-h-screen">
+    <div className="p-4 bg-slate-400 min-h-screen">
         <h1 className="text-2xl font-bold mb-4 text-black font-serif">Pending Bills Summary</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Card 1 */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow flex flex-col justify-center items-center duration-300 hover:bg-gray-700">
                 <h2 className="text-lg font-semibold text-white">Software Department</h2>
                 <p className="text-gray-400 mt-2">Total Pending Students: 27</p>
                 <p className="text-gray-400">Total Pending: Rs 570,000</p>
@@ -61,7 +61,7 @@ const Summary = () => {
             </div>
 
             {/* Card 2 */}
-             <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow flex flex-col justify-center items-center duration-300 hover:bg-gray-700">
                 <h2 className="text-lg font-semibold text-white">Electrical Department</h2>
                 <p className="text-gray-400 mt-2">Total Pending Students: 15</p>
                 <p className="text-gray-400">Total Pending: Rs 320,000</p>
@@ -73,7 +73,7 @@ const Summary = () => {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow flex flex-col justify-center items-center duration-300 hover:bg-gray-700">
               <h2 className="text-lg font-semibold text-white">Internet Security Department</h2>
               <p className="text-gray-400 mt-2">Total Pending Students: 10</p>
               <p className="text-gray-400">Total Pending: Rs 210,000</p>
@@ -85,7 +85,7 @@ const Summary = () => {
             </div>
 
             {/* Card 4 */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow flex flex-col justify-center items-center duration-300 hover:bg-gray-700">
               <h2 className="text-lg font-semibold text-white">Combat Division</h2>
               <p className="text-gray-400 mt-2">Total Pending Students: 8</p>
               <p className="text-gray-400">Total Pending: Rs 150,000</p>
@@ -96,7 +96,7 @@ const Summary = () => {
               </div>
             </div>
         </div>
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700 mt-6">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-gray-700 mt-6 flex flex-col justify-center items-center">
                 <h2 className="text-lg font-semibold text-white">Complete Summary</h2>
                 <p className="text-gray-400 mt-2">Total Pending Students: 57</p>
                 <p className="text-gray-400">Total Pending: Rs 570,000</p>

@@ -126,17 +126,17 @@ const AddBills = () => {
   }
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="p-4 max-w-3xl mx-auto rounded-md text-slate-200">
       <div className="p-4 max-w-3xl mx-auto relative">
-  <button 
-    className="bg-gray-800 text-white px-4 py-2 rounded-md absolute left-0"
-    onClick={handleNavigateBack}
-  >
-    Go Back
-  </button>
-  <h1 className="text-3xl font-bold font-serif text-center w-full">Add Bill</h1>
-</div>
-<form onSubmit={handleSubmit} className="space-y-6">
+      <button 
+        className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md absolute left-0 border border-slate-200"
+        onClick={handleNavigateBack}
+      >
+        Go Back
+      </button>
+        <h1 className="text-3xl font-bold font-serif text-center w-full ">Add Bill</h1>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Department selection */}
         <div>
@@ -238,7 +238,7 @@ const AddBills = () => {
                 type="text"
                 value={charge.name}
                 readOnly
-                className="p-3 border rounded bg-gray-200"
+                className="p-3 border rounded bg-gray-200 placeholder:text-slate-400"
               />
               <input
                 type="number"
@@ -299,8 +299,8 @@ const AddBills = () => {
           Add Bill
         </button>
 
-        <p className="text-sm text-gray-500 mt-4">
-          Bil to be paid by 5th of every month. In case of any queries, please report within three days after receipt of this bill. After that, no queries will be entertained.
+        <p className="text-sm text-gray-200 mt-4">
+          Bill to be paid by 5th of every month. In case of any queries, please report within three days after receipt of this bill. After that, no queries will be entertained.
         </p>
       </form>
     </div>
