@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { setDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebase';
 
 const AddUser = () => {
   const [email, setEmail] = useState('');
@@ -27,20 +24,7 @@ const AddUser = () => {
     const auth = getAuth();
     
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Generate current timestamp
-      const time = Date.now().toString();
-      // Add user data to Firestore with role as admin
-      await setDoc(doc(db, 'users', user.uid), {
-        id: user.uid,
-        email: user.email,
-        password: password, // Storing password is not recommended
-        role: 'admin',
-        created_at: time,
-        pushToken: '', // You can leave it empty or set a default value
-      });
+      
 
       setSnackbarMessage('User added successfully');
       setSnackbarOpen(true);
