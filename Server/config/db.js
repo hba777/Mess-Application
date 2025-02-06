@@ -6,6 +6,7 @@ const { createClient } = require("@supabase/supabase-js"); // For Supabase
 
 let dbClient;
 
+// Determine which database to use based on environment variable
 if (process.env.USE_SUPABASE === "true") {
   // Connecting to Supabase
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -21,6 +22,7 @@ if (process.env.USE_SUPABASE === "true") {
   console.log("🔗 Connected to Local PostgreSQL.");
 }
 
+// Connect to the database
 const connectDb = async () => {
   if (process.env.USE_SUPABASE !== "true") {
     try {
@@ -33,6 +35,7 @@ const connectDb = async () => {
   }
 };
 
+// Close the database connection
 const closeDb = async () => {
   if (process.env.USE_SUPABASE !== "true") {
     await dbClient.end();
@@ -40,4 +43,26 @@ const closeDb = async () => {
   }
 };
 
-module.exports = { dbClient, connectDb, closeDb };
+// Query function for both Supabase and PostgreSQL
+const queryDb = async (queryText, params = []) => {
+  try {
+    if (process.env.USE_SUPABASE === "true") {
+      // Supabase query - Example: querying 'admin' table
+      const { data, error } = await dbClient.from("admin").select("*");
+      if (error) {
+        console.error("❌ Error querying Supabase:", error);
+        throw error;
+      }
+      return data; // Return the result from Supabase query
+    } else {
+      // PostgreSQL query syntax
+      const result = await dbClient.query(queryText, params);
+      return result.rows; // Return the result rows from PostgreSQL
+    }
+  } catch (error) {
+    console.error("❌ Error querying database:", error);
+    throw error; // Rethrow error for handling at higher levels
+  }
+};
+
+module.exports = { dbClient, connectDb, closeDb, queryDb };
