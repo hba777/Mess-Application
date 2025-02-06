@@ -8,14 +8,14 @@ const MessBillEntry = () => {
   const [entries, setEntries] = useState([]);
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/"); // Redirect to login page after logout
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await signOut(auth);
+  //     navigate("/"); // Redirect to login page after logout
+  //   } catch (error) {
+  //     console.error("Error during logout:", error);
+  //   }
+  // };
 
   const [formData, setFormData] = useState({
     armyNo: "",
@@ -200,7 +200,7 @@ const MessBillEntry = () => {
     };
 
     try {
-      await addDoc(collection(db, "messBillEntries"), newEntry);
+      //await addDoc(collection(db, "messBillEntries"), newEntry);
       setErrorMessages({});
       setEntries([...entries, newEntry]);
       setSubmissionMessage({

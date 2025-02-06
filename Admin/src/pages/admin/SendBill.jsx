@@ -29,9 +29,9 @@ const SendBill = () => {
     setLoading(true);
 
     try {
-      const billsRef = collection(db, "messBillEntries");
-      const q = query(billsRef, where("armyNo", "==", paNumber));
-      const querySnapshot = await getDocs(q);
+      //const billsRef = collection(db, "messBillEntries");
+      //const q = query(billsRef, where("armyNo", "==", paNumber));
+      //const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
         const fetchedBills = [];

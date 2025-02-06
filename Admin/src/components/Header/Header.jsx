@@ -19,8 +19,8 @@ const Header = () => {
 
 
       {/* Navigation Section */}
-      <nav className="mt-5 sm:flex sm:flex-col items-center sm:items-start space-y-5">
-        <ul className="sm:flex sm:flex-col flex space-x-4 items-center justify-center sm:items-start sm:space-y-4 text-white">
+      <nav className="mt-5 sm:flex sm:flex-col items-center sm:items-center space-y-5">
+        <ul className="flex sm:flex-col space-x-4 sm:space-x-0 items-center justify-center sm:space-y-4 text-white">
           <li>
             <Link
               to="/"
@@ -45,17 +45,13 @@ const Header = () => {
               Verify Bills
             </Link>
           </li>
-        </ul>
-
-        {/* Sign Out Button */}
-        <div className="mt-8 flex justify-center sm:justify-start w-full">
           <button
             onClick={handleSignOut}
-            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-transform transform hover:scale-105 text-sm sm:text-base lg:text-lg sm:block "
+            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-transform transform hover:scale-105 text-sm sm:text-base lg:text-lg sm:block sm:items-center "
           >
             Sign Out
           </button>
-        </div>
+        </ul>
       </nav>
     </div>
   );

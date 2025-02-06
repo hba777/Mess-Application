@@ -4,10 +4,7 @@ import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router-dom"; // Import RouterProvider and createHashRouter
 import App from "./App";
 import LoginPage from "./pages/auth/Login";
-import AdminPage from "./pages/admin/Admin";
-import AddUser from "./pages/admin/AddUser";
-import SendBill from "./pages/admin/SendBill";
-import MessBillEntry from "./pages/user/Entry";
+import LandingPage from "./pages/user/Landing";
 import UserBill from "./pages/admin/Dashboard";
 
 // Create the router with route configuration
@@ -16,12 +13,9 @@ const router = createHashRouter([
     path: "/",
     element: <App />, // App is used as a layout
     children: [
-      { path: "/", element: <LoginPage /> },
-      { path: "/admin", element: <AdminPage /> },
-      { path: "/admin/addUser", element: <AddUser /> },
-      { path: "/admin/sendBill", element: <SendBill /> },
-      { path: "/user", element: <MessBillEntry /> },
-      { path: "/userBill", element: <UserBill /> },
+      { path: "/", element: <LandingPage /> },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/userDashboard", element: <UserBill /> },
     ],
   },
 ]);

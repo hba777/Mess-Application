@@ -62,16 +62,17 @@ const VerifyBills = () => {
     //   </div>
     // </div>
 
-    <div className="p-4 relative max-w-3xl mx-auto">
-      <button
-        className="bg-gray-800 text-white px-4 py-2 rounded-md absolute left-0"
+    <div className="p-4 relative max-w-3xl min-h-full mx-auto">
+      <div className="p-4 max-w-3xl mx-auto relative">
+      <button 
+        className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md absolute left-0 border border-slate-200"
         onClick={handleNavigateBack}
       >
         Go Back
       </button>
-      <h1 className="text-2xl font-bold font-serif text-center w-full">
-        Verify Bills
-      </h1>{" "}
+        <h1 className="text-3xl font-bold font-serif text-center w-full text-slate-200">Verify Bill</h1>
+      </div>
+
       <div className="space-y-4">
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
           <h2 className="text-lg font-semibold">Sample Student Name</h2>
@@ -97,6 +98,7 @@ const VerifyBills = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
