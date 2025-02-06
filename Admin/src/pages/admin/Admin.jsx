@@ -14,7 +14,7 @@ export default function Admin() {
   return (
     <div className="flex flex-col sm:flex-row border border-white rounded-sm m-0 bg-slate-200 min-h-screen">
       <Header />
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-col flex-grow ">
         <div className="flex justify-between items-center border-2 border-slate-500 p-3 bg-slate-100">
           <DateComponent />
           <p className="font-semibold font-mono text-sm sm:text-base lg:text-lg">User Name here</p>
