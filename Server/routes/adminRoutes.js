@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 const {
   loginAdmin,
   getUsers,
@@ -23,9 +22,9 @@ router.get("/users", isAdmin, getUsers);
 router.post("/user", isAdmin, createUser);
 
 // Update User (Admin Only)
-router.put("/user/:CMIS_id", isAdmin, updateUser);
+router.put("/user/:cms_id", isAdmin, updateUser);
 
 // Delete User (Admin Only)
-router.delete("/user/:CMIS_id", isAdmin, deleteUser);
+router.delete("/user/:cms_id", isAdmin, deleteUser);
 
 module.exports = router;
