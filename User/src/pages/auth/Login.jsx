@@ -16,23 +16,37 @@ const LoginPage = () => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      if (!cmsId.trim()) {
+        setError("Please enter your CMS ID.");
+        setIsLoading(false);
+        return;
+      }
+      if (!password.trim()) {
+        setError("Please enter your password.");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cmsid: "admin", password: "adminpassword" }),
+        body: JSON.stringify({ cms_id: cmsId, password }),
       });
+
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
       localStorage.setItem("token", data.token);
-      toast.success("Login successful");
+      toast.success("Login successful!");
       navigate("/userDashboard");
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
+    } catch (e) {
+      console.error("Login error:", e);
+      setError(e.message);
     }
   };
 
