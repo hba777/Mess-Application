@@ -10,15 +10,10 @@ function DetailComponent() {
   const navigate = useNavigate();
 
   const handleBackNav = () => {
-    navigate("/addBill");
+    navigate("/addBill", { state: { formData }});
   };
   const [errorMessages, setErrorMessages] = useState({});
   const [submissionMessage, setSubmissionMessage] = useState(null);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -148,10 +143,10 @@ function DetailComponent() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     console.log(formData);
     // Page Border
-    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 15);
 
     // Logo and title
     const logoWidth = 75;
@@ -159,11 +154,19 @@ function DetailComponent() {
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
 
+    // Add the specified text below the logo
+    const textY = 15 + logoHeight + 10; // 10 units below the logo
+    const text = "(Up to 25 Nov 2025)";
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text(text, pageWidth / 2, textY, { align: "center" });
+
     // Personal details
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    const detailsYStart = 65;
+    const detailsYStart = 70;
     const detailSpacing = 6;
+
     doc.text(
       `CMS ID:              ${formData.cms_id || ""}`,
       20,
@@ -190,28 +193,10 @@ function DetailComponent() {
       detailsYStart + detailSpacing * 4
     );
 
-    // "Up to Nov 2025" text bold
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    const text = "(Up to 25 Nov 2025)";
-
-    // Set the position
-    const textX = pageWidth / 2;
-    const textY = detailsYStart + detailSpacing * 5 - 2;
-
-    // Draw the text
-    doc.text(text, textX, textY, { align: "center" });
-
-    // Draw the horizontal line under the text
-    const lineStartX = textX - doc.getTextWidth(text) / 2; // Align the line with the text width
-    const lineEndX = lineStartX + doc.getTextWidth(text);
-    const lineY = textY + 2; // Adjust the position to place the line right below the text
-    doc.line(lineStartX, lineY, lineEndX, lineY);
-
     // Table headers and border
     const tableXStart = 20;
     const tableWidth = pageWidth - 40;
-    const tableYStart = 95;
+    const tableYStart = 97;
     const tableHeight = 170;
 
     // Draw table border
@@ -277,9 +262,9 @@ function DetailComponent() {
       const value = item.value ? item.value.toString() : "";
       doc.setFont("helvetica", "normal");
       doc.text(item.label, tableXStart + 5, currentY);
-      doc.text(value, verticalLineX + 10, currentY, { align: "right" }); // Increased horizontal position by 5 units
+      doc.text(value, verticalLineX + 15, currentY, { align: "right" }); // Increased horizontal position by 5 units
       currentY += rowHeight;
-    
+
       // Add horizontal line after each entry
       doc.line(
         tableXStart,
@@ -288,23 +273,22 @@ function DetailComponent() {
         currentY - 4
       );
     });
-    
 
     // Totals section
     doc.setFont("helvetica", "bold");
     doc.text("Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.current_bill || ""}`, verticalLineX + 10, currentY, {
+    doc.text(`${formData.current_bill || ""}`, verticalLineX + 15, currentY, {
       align: "right",
     });
     currentY += rowHeight;
     doc.text("Arrear:", tableXStart + 5, currentY);
-    doc.text(`${formData.arrear || ""}`, verticalLineX + 10, currentY, {
+    doc.text(`${formData.arrear || ""}`, verticalLineX + 15, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
     currentY += rowHeight;
     doc.text("G. Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.gTotal || ""}`, verticalLineX + 10, currentY, {
+    doc.text(`${formData.gTotal || ""}`, verticalLineX + 15, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
@@ -331,95 +315,82 @@ function DetailComponent() {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md">
-    <button
-      onClick={handleBackNav}
-      className="mt-4 py-2 bg-black text-white rounded-lg cursor-pointer hover:bg-green-600"
-    >
-      Back
-    </button>
-    <h2 className="text-2xl font-bold mb-4 text-center">Receipt</h2>
+    <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
+      <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
+        
+        {/* Back Button */}
+        <button
+          onClick={handleBackNav}
+          className="mb-4 py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+        >
+          ← Back
+        </button>
   
-    {/* Personal Information Section */}
-    <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">Personal Information</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex justify-between">
-          <span className="font-medium">CMS ID:</span>
-          <span>{formData.cms_id}</span>
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-center mb-6">Receipt</h2>
+  
+        {/* Personal Information Section */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Personal Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {["cms_id", "rank", "name", "course"].map((key) => (
+              <div key={key} className="flex justify-between">
+                <span className="font-medium">{key.replace(/_/g, " ").toUpperCase()}:</span>
+                <span className="text-gray-300">{formData[key]}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex justify-between">
-          <span className="font-medium">Rank:</span>
-          <span>{formData.rank}</span>
+  
+        {/* Financial Details Section */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Financial Details</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border border-gray-700">
+              <thead className="bg-gray-800">
+                <tr>
+                  <th className="py-2 px-4 border-b border-gray-600 text-gray-300">Details</th>
+                  <th className="py-2 px-4 border-b border-gray-600 text-right text-gray-300">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(formData).map(
+                  ([key, value]) =>
+                    !["cms_id", "rank", "name", "course"].includes(key) && (
+                      <tr key={key} className="even:bg-gray-800">
+                        <td className="py-2 px-4 border-b border-gray-700">{formatLabel(key)}</td>
+                        <td className="py-2 px-4 border-b border-gray-700 text-right">
+                          {typeof value === "number" ? value.toFixed(2) : value}
+                        </td>
+                      </tr>
+                    )
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="flex justify-between">
-          <span className="font-medium">Name:</span>
-          <span>{formData.name}</span>
+  
+        {/* Action Buttons */}
+        <div className="flex justify-between mt-6">
+          <button
+            onClick={handleSubmit}
+            className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          >
+            Add Entry
+          </button>
+          <button
+            onClick={() => generatePDF(formData)}
+            className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Generate PDF
+          </button>
+          
         </div>
-        <div className="flex justify-between">
-          <span className="font-medium">Course:</span>
-          <span>{formData.course}</span>
-        </div>
+  
       </div>
     </div>
-  
-    {/* Financial Details Section */}
-    <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">Financial Details</h3>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="py-2 px-4 border-b border-gray-200 text-left text-gray-600">Details</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-right text-gray-600">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(formData).map(
-              ([key, value]) =>
-                key !== "cms_id" &&
-                key !== "rank" &&
-                key !== "name" &&
-                key !== "course" && (
-                  <tr key={key} className="even:bg-gray-50">
-                    <td className="py-2 px-4 border-b border-gray-200 text-gray-800">
-                      {formatLabel(key)}
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-right text-gray-800">
-                      {typeof value === "number" ? value.toFixed(2) : value}
-                    </td>
-                  </tr>
-                )
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  
-    {/* Action Buttons */}
-    <div className="flex justify-end space-x-4 mt-6">
-      <button
-        onClick={handleSubmit}
-        className="py-2 px-4 bg-green-500 text-white rounded-lg cursor-pointer hover:bg-green-600"
-      >
-        Add Entry
-      </button>
-      <button
-        onClick={() => generatePDF(formData)}
-        className="py-2 px-4 bg-blue-400 text-white rounded-lg cursor-pointer hover:bg-green-600"
-      >
-        Generate PDF
-      </button>
-      <button
-        onClick={handleLogout}
-        className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
-      >
-        Logout
-      </button>
-    </div>
-  </div>
-  
   );
+  
 }
 
 // Helper function to format labels
