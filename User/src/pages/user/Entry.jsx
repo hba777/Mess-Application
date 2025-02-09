@@ -5,10 +5,6 @@ const MessBillEntry = () => {
   const [entries, setEntries] = useState([]);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
-
   const [formData, setFormData] = useState({
     cms_id: "", // Should be number if possible
     rank: "",
@@ -285,37 +281,7 @@ const MessBillEntry = () => {
           </div>
         )}
       </form>
-
-      <h2 className="text-3xl text-center mt-8 mb-4">Entries</h2>
-      <table className="min-w-full table-auto border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            {Object.keys(formData).map((key) => (
-              <th key={key} className="border px-4 py-2">
-                {key}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry, index) => (
-            <tr key={index} className="border-t">
-              {Object.keys(entry).map((key) => (
-                <td key={key} className="border px-4 py-2">
-                  {entry[key]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button
-        onClick={handleLogout}
-        className="mt-4 py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
-      >
-        Logout
-      </button>
+      
     </div>
   );
 };
