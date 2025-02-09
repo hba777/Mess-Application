@@ -74,9 +74,9 @@ const createBill = async (req, res) => {
       arrear,
       receipt_no,
       amount_received,
+      gTotal,
+      balAmount,
     } = req.body;
-
-    console.log("Request Body:", req.body);
 
     // Validate required fields
     if (!cms_id || !rank || !name || !course || !current_bill) {
@@ -94,10 +94,10 @@ const createBill = async (req, res) => {
         sui_gas_boqs, sui_gas_166_cd, sui_gas_166_block, lounge_160, rent_charges,
         fur_maint, sui_gas_elec_fts, mat_charges, hc_wa, gym, cafe_maint_charges,
         dine_out, payamber, student_societies_fund, dinner_ni_jscmcc_69,
-        current_bill, arrear, receipt_no, amount_received
+        current_bill, arrear, receipt_no, amount_received, gTotal, balAmount
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
+        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
       ) RETURNING *`,
       [
         cms_id,
@@ -139,6 +139,8 @@ const createBill = async (req, res) => {
         arrear,
         receipt_no,
         amount_received,
+        gTotal, // <-- Added here
+        balAmount, // <-- Added here
       ]
     );
 
