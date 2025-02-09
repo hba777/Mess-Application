@@ -6,6 +6,8 @@ import App from "./App";
 import LoginPage from "./pages/auth/Login";
 import LandingPage from "./pages/user/Landing";
 import UserBill from "./pages/admin/Dashboard";
+import MessBillEntry from "./pages/user/Entry";
+import ReviewBill from "./pages/user/ReviewBill";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -16,6 +18,8 @@ const router = createHashRouter([
       { path: "/", element: <LandingPage /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/userDashboard", element: <UserBill /> },
+      { path: "/addBill", element: <MessBillEntry /> },
+      { path: "/reviewBill", element: <ReviewBill /> },
     ],
   },
 ]);

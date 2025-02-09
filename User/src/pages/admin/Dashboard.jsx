@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
+import { useNavigate } from "react-router-dom";
 
 const UserBill = () => {
   const [bill, setBill] = useState(null);
   const [receipt, setReceipt] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // Fetch bill data from the backend
   // useEffect(() => {
@@ -32,6 +34,10 @@ const UserBill = () => {
       setReceipt(acceptedFiles[0]);
     },
   });
+
+  const handleGenerateBillNavigation = () => {
+    navigate('/addBill'); // Navigate back to the admin page
+  };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -62,6 +68,11 @@ const UserBill = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="flex justify-between mb-6">
+          <button onClick={handleGenerateBillNavigation} className="text-blue-500 text-lg">
+            Generate Bill
+          </button>
+        </div>
       <h1 className="text-2xl font-bold mb-6">Your Bill Details</h1>
       <div className="bg-white p-6 rounded-lg shadow-md">
         {/* Bill Information */}
