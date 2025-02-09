@@ -1,37 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 //import { addBill, getDepartments, getStudentsByDepartment, getUserByIdOrName } from '../services/api'; // These are the API functions you need to implement
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const AddBills = () => {
   const [formData, setFormData] = useState({
-    cmisId: '',
-    rank: '',
-    name: '',
-    course: '',
-    serNo: '',
-    description: '',
-    amount: '',
+    cmisId: "",
+    rank: "",
+    name: "",
+    course: "",
+    serNo: "",
+    description: "",
+    amount: "",
     additionalCharges: [
-      { name: 'Mess Subs', amount: 300 },
-      { name: 'Offrs Saving', amount: 200 },
-      { name: 'Regt Subs (C/Fund)', amount: 80 },
-      { name: 'Gar Mess', amount: 350 },
-      { name: 'Room Maint', amount: 0 },
-      { name: 'Internet', amount: 100 },
-      { name: 'Lounge', amount: 160 },
-      { name: 'Gym Subs', amount: 100 },
-      { name: 'Café Maint Charges (MCS)', amount: 25 },
-      { name: 'Student Society Fund', amount: 100 },
+      { name: "Messing", amount: 0.0 },
+      { name: "E-Messing", amount: 0.0 },
+      { name: "Sui Gas Per Day", amount: 0.0 },
+      { name: "Sui Gas 25 Percent", amount: 0.0 },
+      { name: "Tea Bar MCS", amount: 0.0 },
+      { name: "Dining Hall Charges", amount: 0.0 },
+      { name: "SWPR", amount: 0.0 },
+      { name: "Laundry", amount: 0.0 },
+      { name: "Gar Mess", amount: 0.0 },
+      { name: "Room Maint", amount: 0.0 },
+      { name: "Elec Charges 160 Block", amount: 0.0 },
+      { name: "Internet", amount: 0.0 },
+      { name: "SVC Charges", amount: 0.0 },
+      { name: "Sui Gas BOQs", amount: 0.0 },
+      { name: "Sui Gas 166 CD", amount: 0.0 },
+      { name: "Sui Gas 166 Block", amount: 0.0 },
+      { name: "Lounge 160", amount: 0.0 },
+      { name: "Rent Charges", amount: 0.0 },
+      { name: "Fur Maint", amount: 0.0 },
+      { name: "Sui Gas Elec FTS", amount: 0.0 },
+      { name: "Mat Charges", amount: 0.0 },
+      { name: "HC WA", amount: 0.0 },
+      { name: "Gym", amount: 0.0 },
+      { name: "Café Maint Charges", amount: 0.0 },
+      { name: "Dine Out", amount: 0.0 },
+      { name: "Payamber", amount: 0.0 },
+      { name: "Student Societies Fund", amount: 0.0 },
+      { name: "Dinner NI JSCMCC 69", amount: 0.0 },
+      { name: "Current Bill", amount: 0.0 },
+      { name: "Arrear", amount: 0.0 },
+      { name: "M Subs", amount: 0.0 },
+      { name: "Saving", amount: 0.0 },
+      { name: "C Fund", amount: 0.0 },
     ],
-    totalAmount: 1255,
-    arrear: 0,
-    grandTotal: 1255,
+    receipt_no: "",
+    amount_received: 0.0,
+    totalAmount: 0.0,
+    grandTotal: 0.0,
   });
 
   const [departments, setDepartments] = useState([]);
   const [students, setStudents] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
@@ -82,8 +106,8 @@ const AddBills = () => {
 
   // Handle form field changes
   const handleChange = (e) => {
-     const { name, value } = e.target;
-     setFormData({ ...formData, [name]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   // Handle amount changes in the additional charges fields
@@ -93,7 +117,10 @@ const AddBills = () => {
     setFormData({
       ...formData,
       additionalCharges: updatedCharges,
-      totalAmount: updatedCharges.reduce((acc, charge) => acc + Number(charge.amount), 0),
+      totalAmount: updatedCharges.reduce(
+        (acc, charge) => acc + Number(charge.amount),
+        0
+      ),
     });
   };
 
@@ -123,24 +150,27 @@ const AddBills = () => {
 
   const handleNavigateBack = () => {
     navigate("/adminDashboard");
-  }
+  };
 
   return (
     <div className="p-4 max-w-3xl mx-auto rounded-md text-slate-200">
       <div className="p-4 max-w-3xl mx-auto relative">
-      <button 
-        className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md absolute left-0 border border-slate-200"
-        onClick={handleNavigateBack}
-      >
-        Go Back
-      </button>
-        <h1 className="text-3xl font-bold font-serif text-center w-full ">Add Bill</h1>
+        <button
+          className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md absolute left-0 border border-slate-200"
+          onClick={handleNavigateBack}
+        >
+          Go Back
+        </button>
+        <h1 className="text-3xl font-bold font-serif text-center w-full ">
+          Add Bill
+        </h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
         {/* Department selection */}
         <div>
-          <label htmlFor="department" className="block font-semibold">Select Department</label>
+          <label htmlFor="department" className="block font-semibold">
+            Select Department
+          </label>
           <select
             id="department"
             name="department"
@@ -157,10 +187,12 @@ const AddBills = () => {
             ))} */}
           </select>
         </div>
-        
+
         {/* Search by Name or CMIS ID */}
         <div>
-          <label htmlFor="search" className="block font-semibold">Search by Name or CMIS ID</label>
+          <label htmlFor="search" className="block font-semibold">
+            Search by Name or CMIS ID
+          </label>
           <input
             type="text"
             id="search"
@@ -233,74 +265,122 @@ const AddBills = () => {
         <div>
           <h2 className="font-semibold">Additional Charges</h2>
           {formData.additionalCharges.map((charge, index) => (
-            <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
-              <input
-                type="text"
-                value={charge.name}
-                readOnly
-                className="p-3 border rounded bg-gray-200 placeholder:text-slate-400"
-              />
-              <input
-                type="number"
-                value={charge.amount}
-                onChange={(e) => handleAmountChange(index, e)}
-                className="p-3 border rounded"
-              />
+            <div
+              key={index}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4"
+            >
+              <div>
+                <label className="block font-medium">{charge.name}</label>
+                <input
+                  type="text"
+                  value={charge.name}
+                  readOnly
+                  className="w-full p-3 border rounded bg-gray-200 placeholder:text-slate-400"
+                />
+              </div>
+              <div>
+                <label className="block font-medium">{`Enter ${charge.name} amount`}</label>
+                <input
+                  type="number"
+                  value={charge.amount}
+                  placeholder={`Enter ${charge.name} amount`}
+                  onChange={(e) => handleAmountChange(index, e)}
+                  className="w-full p-3 border rounded"
+                />
+              </div>
             </div>
           ))}
         </div>
 
         {/* Total amount */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <input
-          type="text"
-          value="Total amount"
-          readOnly
-          className="p-3 border rounded bg-gray-200"
-        />
-          <input
-            type="number"
-            name="totalAmount"
-            value={formData.totalAmount}
-            readOnly
-            className="p-3 border rounded bg-gray-200"
-          />
-        <input
-          type="text"
-          value="Arrears"
-          readOnly
-          className="p-3 border rounded bg-gray-200"
-        />
-          <input
-            type="number"
-            name="arrear"
-            placeholder="Arrear"
-            value={formData.arrear}
-            onChange={handleChange}
-            className="p-3 border rounded"
-          />
-        <input
-          type="text"
-          value="Grand Total"
-          readOnly
-          className="p-3 border rounded bg-gray-200"
-        />
-          <input
-            type="number"
-            name="grandTotal"
-            value={formData.grandTotal}
-            readOnly
-            className="p-3 border rounded bg-gray-200"
-          />
+          {/* Total Amount */}
+          <div>
+            <label className="block font-medium text-gray-700">
+              Total Amount
+            </label>
+            <input
+              type="text"
+              value="Total amount"
+              readOnly
+              className="w-full p-3 border rounded bg-gray-200"
+            />
+          </div>
+          <div>
+            <label className="block font-medium text-gray-700">
+              Total Amount (Value)
+            </label>
+            <input
+              type="number"
+              name="totalAmount"
+              value={formData.totalAmount}
+              readOnly
+              className="w-full p-3 border rounded bg-gray-200"
+            />
+          </div>
+
+          {/* Arrears */}
+          <div>
+            <label className="block font-medium">Arrears</label>
+            <input
+              type="text"
+              value="Arrears"
+              readOnly
+              className="w-full p-3 border rounded bg-gray-200"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">
+              Enter Arrears
+            </label>
+            <input
+              type="number"
+              name="arrear"
+              placeholder="Arrear"
+              value={formData.arrear}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+            />
+          </div>
+
+          {/* Grand Total */}
+          <div>
+            <label className="block font-medium">
+              Grand Total
+            </label>
+            <input
+              type="text"
+              value="Grand Total"
+              readOnly
+              className="w-full p-3 border rounded bg-gray-200"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">
+              Grand Total (Value)
+            </label>
+            <input
+              type="number"
+              name="grandTotal"
+              value={formData.grandTotal}
+              readOnly
+              className="w-full p-3 border rounded bg-gray-200"
+            />
+          </div>
         </div>
 
         {/* Submit button */}
-        <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg mt-4">
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-3 rounded-lg mt-4"
+        >
           Add Bill
         </button>
 
         <p className="text-sm text-gray-200 mt-4">
-          Bill to be paid by 5th of every month. In case of any queries, please report within three days after receipt of this bill. After that, no queries will be entertained.
+          Bill to be paid by 5th of every month. In case of any queries, please
+          report within three days after receipt of this bill. After that, no
+          queries will be entertained.
         </p>
       </form>
     </div>
