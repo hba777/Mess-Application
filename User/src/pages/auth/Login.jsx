@@ -47,6 +47,7 @@ const LoginPage = () => {
     } catch (e) {
       console.error("Login error:", e);
       setError(e.message);
+      setIsLoading(false);
     }
   };
 

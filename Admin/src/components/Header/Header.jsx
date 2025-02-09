@@ -4,9 +4,10 @@ import { useNavigate , Link } from 'react-router'
 const Header = () => {
   const navigate = useNavigate();
 
-  function handleSignOut() {
-    navigate('/');
-  }
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/login");
+  };
 
   return (
     <div className="bg-slate-800 text-slate-200 px-4 py-6 sm:py-8 sm:px-6 lg:px-8 min-w-52">
@@ -61,8 +62,17 @@ const Header = () => {
               Add Admin
             </Link>
           </li>
+
+          <li>
+            <Link
+              to="/getBills"
+              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
+            >
+              Get Bills
+            </Link>
+          </li>
           <button
-            onClick={handleSignOut}
+            onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-transform transform hover:scale-105 text-sm sm:text-base lg:text-lg sm:block sm:items-center "
           >
             Sign Out

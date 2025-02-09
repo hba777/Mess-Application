@@ -5,12 +5,14 @@ import { createHashRouter, RouterProvider } from "react-router-dom"; // Import R
 import App from "./App";
 import LoginPage from "./pages/auth/Login";
 import AddAdmin from "./components/dashboard/AddAdmin";
-import AddUsr from "./components/dashboard/AddUsr";
 import Admin from "./pages/admin/Admin";
 import AddBills from "./components/dashboard/AddBills";
 import VerifyBills from "./components/dashboard/VerifyBills";
 import LandingPage from "./pages/admin/Landing";
 import ErrorPage from "./components/ErrorPage";
+import AddUser from "./components/dashboard/AddUser";
+import Bills from "./components/dashboard/Bills/Bills";
+import BillDetails from "./components/dashboard/Bills/BillDetails";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -28,7 +30,9 @@ const router = createHashRouter([
       { path: "/addBills", element: <AddBills /> },
       { path: "/verifyBills", element: <VerifyBills /> },
       { path: "/addAdmin", element: <AddAdmin /> },
-      { path: "/addUser", element: <AddUsr /> },
+      { path: "/addUser", element: <AddUser /> },
+      { path: "/getBills", element: <Bills/>},
+      { path: "/viewBillDetails", element: <BillDetails /> },
       { path: "/*", element: <ErrorPage /> },
 
     ],
