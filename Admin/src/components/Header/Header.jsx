@@ -23,7 +23,7 @@ const Header = () => {
         <ul className="flex sm:flex-col space-x-4 sm:space-x-0 items-center justify-center sm:space-y-4 text-white">
           <li>
             <Link
-              to="/"
+              to="/adminDashboard"
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
               Summary
@@ -43,6 +43,22 @@ const Header = () => {
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
               Verify Bills
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/addUser"
+              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
+            >
+              Add User
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/addAdmin"
+              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
+            >
+              Add Admin
             </Link>
           </li>
           <button

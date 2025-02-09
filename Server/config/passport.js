@@ -28,9 +28,17 @@ passport.use(
 );
 
 // Function to generate JWT token
-const generateToken = (admin) => {
+const generateToken = (userOrAdmin) => {
+  const payload = userOrAdmin.cmsid
+    ? { cmsid: userOrAdmin.cmsid, role: userOrAdmin.role } // Admin payload
+    : {
+        cms_id: userOrAdmin.cms_id,
+        name: userOrAdmin.name,
+        role: userOrAdmin.role,
+      }; // User payload
+
   return jwt.sign(
-    { cmsid: admin.cmsid, role: admin.role }, // Payload
+    payload,
     process.env.JWT_SECRET || "your_secret_key", // Secret Key
     { expiresIn: "1h" } // Expiry time
   );

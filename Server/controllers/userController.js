@@ -1,132 +1,295 @@
 const { queryDb } = require("../config/db");
+const { generateToken } = require("../config/passport");
+const bcrypt = require("bcrypt");
 
-// User Login
+// Login User
 const loginUser = async (req, res) => {
-  const { cmsid, password } = req.body; // Assuming CMS ID and password are provided
-
+  const { cms_id, password } = req.body;
   try {
-    const result = await queryDb(
-      "SELECT * FROM users WHERE cmsid = $1 AND password = $2",
-      [cmsid, password] // Simple password check (in real-world, hash and salt passwords)
-    );
+    const result = await queryDb("SELECT * FROM users WHERE cms_id = $1", [
+      cms_id,
+    ]);
 
     if (!result || result.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid CMS ID or password" });
     }
 
     const user = result[0];
 
-    // Create and sign JWT token
-    const token = jwt.sign(
-      { cmsid: user.cmsid, role: user.role }, // Payload includes CMS ID and user role
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Token expires in 1 hour
-    );
+    // Compare hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid CMS ID or password" });
+    }
 
-    res.json({ token });
+    const token = generateToken(user); // Generate JWT
+
+    res.status(200).json({ message: "Login successful", token });
   } catch (err) {
     console.error("Error in loginUser:", err);
-    res.status(500).json({ message: "Server error during login", error: err });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Create a Bill
+// Create a new bill
 const createBill = async (req, res) => {
-  const { CMIS_id, amount, due_date, status, receipt_number } = req.body;
-
   try {
+    const {
+      cms_id,
+      rank,
+      name,
+      course,
+      m_subs,
+      saving,
+      c_fund,
+      messing,
+      e_messing,
+      sui_gas_per_day,
+      sui_gas_25_percent,
+      tea_bar_mcs,
+      dining_hall_charges,
+      swpr,
+      laundry,
+      gar_mess,
+      room_maint,
+      elec_charges_160_block,
+      internet,
+      svc_charges,
+      sui_gas_boqs,
+      sui_gas_166_cd,
+      sui_gas_166_block,
+      lounge_160,
+      rent_charges,
+      fur_maint,
+      sui_gas_elec_fts,
+      mat_charges,
+      hc_wa,
+      gym,
+      cafe_maint_charges,
+      dine_out,
+      payamber,
+      student_societies_fund,
+      dinner_ni_jscmcc_69,
+      current_bill,
+      arrear,
+      receipt_no,
+      amount_received,
+    } = req.body;
+
+    console.log("Request Body:", req.body);
+
+    // Validate required fields
+    if (!cms_id || !rank || !name || !course || !current_bill) {
+      return res.status(400).json({
+        message: "CMS ID, Rank, Name, Course, and Current Bill are required",
+      });
+    }
+
+    // Insert new bill into the database
     const result = await queryDb(
-      "INSERT INTO bill (CMIS_id, amount, due_date, status, receipt_number) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [CMIS_id, amount, due_date, status, receipt_number]
+      `INSERT INTO bill (
+        cms_id, rank, name, course, m_subs, saving, c_fund, messing, e_messing,
+        sui_gas_per_day, sui_gas_25_percent, tea_bar_mcs, dining_hall_charges, swpr,
+        laundry, gar_mess, room_maint, elec_charges_160_block, internet, svc_charges,
+        sui_gas_boqs, sui_gas_166_cd, sui_gas_166_block, lounge_160, rent_charges,
+        fur_maint, sui_gas_elec_fts, mat_charges, hc_wa, gym, cafe_maint_charges,
+        dine_out, payamber, student_societies_fund, dinner_ni_jscmcc_69,
+        current_bill, arrear, receipt_no, amount_received
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
+      ) RETURNING *`,
+      [
+        cms_id,
+        rank,
+        name,
+        course,
+        m_subs,
+        saving,
+        c_fund,
+        messing,
+        e_messing,
+        sui_gas_per_day,
+        sui_gas_25_percent,
+        tea_bar_mcs,
+        dining_hall_charges,
+        swpr,
+        laundry,
+        gar_mess,
+        room_maint,
+        elec_charges_160_block,
+        internet,
+        svc_charges,
+        sui_gas_boqs,
+        sui_gas_166_cd,
+        sui_gas_166_block,
+        lounge_160,
+        rent_charges,
+        fur_maint,
+        sui_gas_elec_fts,
+        mat_charges,
+        hc_wa,
+        gym,
+        cafe_maint_charges,
+        dine_out,
+        payamber,
+        student_societies_fund,
+        dinner_ni_jscmcc_69,
+        current_bill,
+        arrear,
+        receipt_no,
+        amount_received,
+      ]
     );
 
     if (!result || result.length === 0) {
-      return res.status(400).json({ message: "Bill creation failed" });
+      return res.status(500).json({ message: "Bill creation failed" });
     }
 
-    res.status(201).json(result[0]); // Return the created bill
+    res
+      .status(201)
+      .json({ message: "Bill created successfully", bill: result[0] });
   } catch (err) {
     console.error("Error in createBill:", err);
-    res.status(500).json({ message: "Error creating bill", error: err });
+
+    // Handle unique constraint violation (PostgreSQL error code 23505)
+    if (err.code === "23505") {
+      return res
+        .status(400)
+        .json({ message: "Bill with this CMS ID already exists" });
+    }
+
+    res
+      .status(500)
+      .json({ message: "Error creating bill", error: err.message });
   }
 };
 
-// Get All Bills
+// Get all bills
 const getBills = async (req, res) => {
   try {
-    const bills = await queryDb("SELECT * FROM bill");
+    const bills = await queryDb("SELECT * FROM bill ORDER BY id DESC");
 
     if (!bills || bills.length === 0) {
       return res.status(404).json({ message: "No bills found" });
     }
 
-    res.json(bills);
-  } catch (err) {
-    console.error("Error in getBills:", err);
-    res.status(500).json({ message: "Error fetching bills", error: err });
+    res.status(200).json({ message: "Bills retrieved successfully", bills });
+  } catch (error) {
+    console.error("Error fetching bills:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching bills", error: error.message });
   }
 };
 
-// Get Bill by ID
+// Get bill by ID
 const getBillById = async (req, res) => {
-  const { bill_id } = req.params;
-
   try {
-    const result = await queryDb("SELECT * FROM bill WHERE bill_id = $1", [
-      bill_id,
-    ]);
+    const { id } = req.params;
+    const bill = await queryDb("SELECT * FROM bill WHERE id = $1", [id]);
+
+    if (bill.rows.length === 0) {
+      return res.status(404).json({ message: "Bill not found" });
+    }
+
+    res.json(bill.rows[0]);
+  } catch (error) {
+    console.error("Error fetching bill:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update bill
+const updateBill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    console.log("Request Body:", updates); // Debugging step
+    console.log("Bill ID:", id);
+
+    // Ensure the ID and at least one field are provided
+    if (!id) {
+      return res.status(400).json({ message: "Bill ID is required" });
+    }
+
+    if (!updates || Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "No fields provided for update" });
+    }
+
+    // Build the dynamic update query
+    const fields = Object.keys(updates).map(
+      (key, index) => `${key} = $${index + 1}`
+    );
+    const values = Object.values(updates);
+
+    // Add ID at the end for the WHERE clause
+    values.push(id);
+
+    console.log("Fields to update:", fields);
+    console.log("Values:", values);
+
+    // Execute the update query
+    const result = await queryDb(
+      `UPDATE bill 
+       SET ${fields.join(", ")}
+       WHERE id = $${values.length} 
+       RETURNING *`,
+      values
+    );
+
+    console.log("Query Result:", result);
 
     if (!result || result.length === 0) {
-      return res.status(404).json({ message: "Bill not found" });
+      return res.status(404).json({ message: "Bill not found or not updated" });
     }
 
-    res.json(result[0]);
+    res
+      .status(200)
+      .json({ message: "Bill updated successfully", bill: result[0] });
   } catch (err) {
-    console.error("Error in getBillById:", err);
-    res.status(500).json({ message: "Error fetching bill", error: err });
+    console.error("Error updating bill:", err);
+    res
+      .status(500)
+      .json({ message: "Error updating bill", error: err.message });
   }
 };
 
-// Update Bill
-const updateBill = async (req, res) => {
-  const { bill_id } = req.params;
-  const { CMIS_id, amount, due_date, status, receipt_number } = req.body;
-
-  try {
-    const result = await queryDb(
-      "UPDATE bill SET CMIS_id = $1, amount = $2, due_date = $3, status = $4, receipt_number = $5 WHERE bill_id = $6 RETURNING *",
-      [CMIS_id, amount, due_date, status, receipt_number, bill_id]
-    );
-
-    if (result.length === 0) {
-      return res.status(404).json({ message: "Bill not found" });
-    }
-
-    res.json(result[0]); // Return the updated bill
-  } catch (err) {
-    console.error("Error in updateBill:", err);
-    res.status(500).json({ message: "Error updating bill", error: err });
-  }
-};
-
-// Delete Bill
+// Delete bill
 const deleteBill = async (req, res) => {
-  const { bill_id } = req.params;
-
   try {
-    const result = await queryDb(
-      "DELETE FROM bill WHERE bill_id = $1 RETURNING *",
-      [bill_id]
-    );
+    const { id } = req.params;
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "Bill not found" });
+    console.log("Bill ID to delete:", id); // Debugging step
+
+    // Ensure the ID is provided
+    if (!id) {
+      return res.status(400).json({ message: "Bill ID is required" });
     }
 
-    res.json({ message: "Bill deleted successfully" });
+    // Execute the delete query
+    const result = await queryDb("DELETE FROM bill WHERE id = $1 RETURNING *", [
+      id,
+    ]);
+
+    console.log("Query Result:", result);
+
+    // Check if the bill was found and deleted
+    if (!result || result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Bill not found or already deleted" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Bill deleted successfully", deletedBill: result[0] });
   } catch (err) {
-    console.error("Error in deleteBill:", err);
-    res.status(500).json({ message: "Error deleting bill", error: err });
+    console.error("Error deleting bill:", err);
+    res
+      .status(500)
+      .json({ message: "Error deleting bill", error: err.message });
   }
 };
 

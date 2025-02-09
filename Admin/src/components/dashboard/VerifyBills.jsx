@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 //import { getBills, verifyBill } from '../services/api';
 import { useNavigate } from "react-router-dom";
+import recipt from "../../assets/recipt.jpeg";
 
 const VerifyBills = () => {
   const [bills, setBills] = useState([]);
@@ -75,10 +76,10 @@ const VerifyBills = () => {
 
       <div className="space-y-4">
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
-          <h2 className="text-lg font-semibold">Sample Student Name</h2>
-          <p className="text-gray-600">Amount: Rs 57000</p>
+          <h2 className="text-lg text-gray-600 font-bold">Student Name : <span className="font-normal ">Husnain Anwar</span></h2>
+          <p className="text-gray-600 font-bold">Amount : <span className="font-normal">Rs 3300</span></p>
           <img
-            src="/recipt.avif"
+            src= {recipt}
             alt="Receipt"
             className=" object-cover  mt-2"
           />

@@ -41,56 +41,115 @@ const getUsers = async (req, res) => {
 
 // Create User (Admin Only)
 const createUser = async (req, res) => {
-  const { CMIS_id, name, department, rank, Pma_course, degree, phone_number } =
-    req.body;
-
   try {
+    const {
+      cms_id,
+      name,
+      password, // Add password field
+      department,
+      rank,
+      pma_course,
+      degree,
+      phone_number,
+      total_due = 0,
+    } = req.body;
+
+    console.log("Request Body:", req.body);
+
+    // Validate required fields
+    if (
+      !cms_id ||
+      !name ||
+      !password || // Ensure password is provided
+      !department ||
+      !rank ||
+      !pma_course ||
+      !degree ||
+      !phone_number
+    ) {
+      return res.status(400).json({
+        message:
+          "All fields including password (except total_due) are required",
+      });
+    }
+
+    // Hash the password before storing it in the database
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Insert new user into the database
     const result = await queryDb(
-      "INSERT INTO users (CMIS_id, name, department, rank, Pma_course, degree, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [CMIS_id, name, department, rank, Pma_course, degree, phone_number]
+      `INSERT INTO users (cms_id, name, password, department, rank, pma_course, degree, phone_number, total_due) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [
+        cms_id,
+        name,
+        hashedPassword, // Store hashed password
+        department,
+        rank,
+        pma_course,
+        degree,
+        phone_number,
+        total_due,
+      ]
     );
 
     if (!result || result.length === 0) {
-      return res.status(400).json({ message: "User creation failed" });
+      return res.status(500).json({ message: "User creation failed" });
     }
 
-    res.status(201).json(result[0]); // Return the created user
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: result[0] });
   } catch (err) {
     console.error("Error in createUser:", err);
-    res.status(500).json({ message: "Error creating user", error: err });
+
+    // Handle unique constraint violation (PostgreSQL error code 23505)
+    if (err.code === "23505") {
+      return res.status(400).json({ message: "CMS ID already exists" });
+    }
+
+    res
+      .status(500)
+      .json({ message: "Error creating user", error: err.message });
   }
 };
 
 // Update User (Admin Only)
 const updateUser = async (req, res) => {
-  const { CMIS_id } = req.params;
-  const { name, department, rank, Pma_course, degree, phone_number } = req.body;
+  const { cms_id } = req.params;
+  const updates = req.body;
 
   try {
-    const result = await queryDb(
-      "UPDATE users SET name = $1, department = $2, rank = $3, Pma_course = $4, degree = $5, phone_number = $6 WHERE CMIS_id = $7 RETURNING *",
-      [name, department, rank, Pma_course, degree, phone_number, CMIS_id]
+    const fields = Object.keys(updates).map(
+      (key, index) => `"${key}" = $${index + 1}`
     );
+    const values = Object.values(updates);
 
-    if (result.length === 0) {
+    const query = `UPDATE users SET ${fields.join(", ")} WHERE "cms_id" = $${
+      values.length + 1
+    } RETURNING *`;
+
+    const result = await queryDb(query, [...values, cms_id]);
+
+    if (!result || result.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(result[0]); // Return the updated user
-  } catch (err) {
-    console.error("Error in updateUser:", err);
-    res.status(500).json({ message: "Error updating user", error: err });
+    res.json({ message: "User updated successfully", user: result[0] });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // Delete User (Admin Only)
 const deleteUser = async (req, res) => {
-  const { CMIS_id } = req.params;
+  const { cms_id } = req.params;
 
   try {
     const result = await queryDb(
-      "DELETE FROM users WHERE CMIS_id = $1 RETURNING *",
-      [CMIS_id]
+      "DELETE FROM users WHERE cms_id = $1 RETURNING *",
+      [cms_id]
     );
 
     if (result.length === 0) {
@@ -99,7 +158,6 @@ const deleteUser = async (req, res) => {
 
     res.json({ message: "User deleted successfully" });
   } catch (err) {
-    console.error("Error in deleteUser:", err);
     res.status(500).json({ message: "Error deleting user", error: err });
   }
 };
