@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 //import { getBills, verifyBill } from '../services/api';
 import { useNavigate } from "react-router-dom";
+import recipt from "../../assets/recipt.jpeg";
 
 const VerifyBills = () => {
   const [bills, setBills] = useState([]);
@@ -62,22 +63,23 @@ const VerifyBills = () => {
     //   </div>
     // </div>
 
-    <div className="p-4 relative max-w-3xl mx-auto">
-      <button
-        className="bg-gray-800 text-white px-4 py-2 rounded-md absolute left-0"
+    <div className="p-4 relative max-w-3xl min-h-full mx-auto">
+      <div className="p-4 max-w-3xl mx-auto relative">
+      <button 
+        className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md absolute left-0 border border-slate-200"
         onClick={handleNavigateBack}
       >
         Go Back
       </button>
-      <h1 className="text-2xl font-bold font-serif text-center w-full">
-        Verify Bills
-      </h1>{" "}
+        <h1 className="text-3xl font-bold font-serif text-center w-full text-slate-200">Verify Bill</h1>
+      </div>
+
       <div className="space-y-4">
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
-          <h2 className="text-lg font-semibold">Sample Student Name</h2>
-          <p className="text-gray-600">Amount: Rs 57000</p>
+          <h2 className="text-lg text-gray-600 font-bold">Student Name : <span className="font-normal ">Husnain Anwar</span></h2>
+          <p className="text-gray-600 font-bold">Amount : <span className="font-normal">Rs 3300</span></p>
           <img
-            src="/recipt.avif"
+            src= {recipt}
             alt="Receipt"
             className=" object-cover  mt-2"
           />
@@ -97,6 +99,7 @@ const VerifyBills = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

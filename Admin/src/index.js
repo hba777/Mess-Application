@@ -6,11 +6,15 @@ import App from "./App";
 import LoginPage from "./pages/auth/Login";
 import AdminPage from "./pages/admin/AdminOld";
 import AddUser from "./pages/admin/AddUser";
+import AddAdmin from "./components/dashboard/AddAdmin";
+import AddUsr from "./components/dashboard/AddUsr";
 import SendBill from "./pages/admin/SendBill";
 import MessBillEntry from "./pages/user/Entry";
 import Admin from "./pages/admin/Admin";
 import AddBills from "./components/dashboard/AddBills";
 import VerifyBills from "./components/dashboard/VerifyBills";
+import LandingPage from "./pages/admin/Landing";
+import ErrorPage from "./components/ErrorPage";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -18,7 +22,8 @@ const router = createHashRouter([
     path: "/",
     element: <App />, // App is used as a layout
     children: [
-      { path: "/", element: <LoginPage /> },
+      { path: "/", element: <LandingPage /> },
+      { path: "/login", element: <LoginPage /> },
       // { path: "/admin", element: <AdminPage /> },
       // { path: "/admin/addUser", element: <AddUser /> },
       // { path: "/admin/sendBill", element: <SendBill /> },
@@ -26,6 +31,10 @@ const router = createHashRouter([
       { path: "/adminDashboard", element: <Admin /> },
       { path: "/addBills", element: <AddBills /> },
       { path: "/verifyBills", element: <VerifyBills /> },
+      { path: "/addAdmin", element: <AddAdmin /> },
+      { path: "/addUser", element: <AddUsr /> },
+      { path: "/*", element: <ErrorPage /> },
+
     ],
   },
 ]);
