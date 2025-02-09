@@ -64,7 +64,8 @@ CREATE TABLE bill (
     arrear NUMERIC(10,2),
     receipt_no TEXT,
     amount_received NUMERIC(10,2),
-    CONSTRAINT fk_cms_id FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
+    gTotal NUMERIC(10,2) DEFAULT 0,
+    balAmount NUMERIC(10,2) DEFAULT 0;
 );
 
 
