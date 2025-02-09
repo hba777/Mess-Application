@@ -45,7 +45,7 @@ const createUser = async (req, res) => {
     const {
       cms_id,
       name,
-      password, // Add password field
+      password,
       department,
       rank,
       pma_course,

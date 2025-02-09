@@ -29,19 +29,14 @@ passport.use(
 
 // Function to generate JWT token
 const generateToken = (userOrAdmin) => {
-  const payload = userOrAdmin.cmsid
-    ? { cmsid: userOrAdmin.cmsid, role: userOrAdmin.role } // Admin payload
-    : {
-        cms_id: userOrAdmin.cms_id,
-        name: userOrAdmin.name,
-        role: userOrAdmin.role,
-      }; // User payload
+  const isAdmin = userOrAdmin.cmsid !== undefined; // Detects admin user
+  const payload = isAdmin
+    ? { cmsid: userOrAdmin.cmsid, role: "admin" } // Auto-set admin role
+    : { cms_id: userOrAdmin.cms_id, name: userOrAdmin.name, role: "user" }; // Auto-set user role
 
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET || "your_secret_key", // Secret Key
-    { expiresIn: "1h" } // Expiry time
-  );
+  return jwt.sign(payload, process.env.JWT_SECRET || "your_secret_key", {
+    expiresIn: "1h",
+  });
 };
 
 module.exports = { passport, generateToken };
