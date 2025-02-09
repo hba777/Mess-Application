@@ -10,7 +10,7 @@ function DetailComponent() {
   const navigate = useNavigate();
 
   const handleBackNav = () => {
-    navigate("/addBill", { state: { formData }});
+    navigate("/addBill", { state: { formData } });
   };
   const [errorMessages, setErrorMessages] = useState({});
   const [submissionMessage, setSubmissionMessage] = useState(null);
@@ -317,40 +317,49 @@ function DetailComponent() {
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
       <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
-        
         {/* Back Button */}
         <button
           onClick={handleBackNav}
           className="mb-4 py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
         >
-          ← Back
+          Back
         </button>
-  
+
         {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6">Receipt</h2>
-  
+
         {/* Personal Information Section */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Personal Information</h3>
+          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">
+            Personal Information
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             {["cms_id", "rank", "name", "course"].map((key) => (
               <div key={key} className="flex justify-between">
-                <span className="font-medium">{key.replace(/_/g, " ").toUpperCase()}:</span>
+                <span className="font-medium">
+                  {key.replace(/_/g, " ").toUpperCase()}:
+                </span>
                 <span className="text-gray-300">{formData[key]}</span>
               </div>
             ))}
           </div>
         </div>
-  
+
         {/* Financial Details Section */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Financial Details</h3>
+          <h3 className="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">
+            Financial Details
+          </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left border border-gray-700">
               <thead className="bg-gray-800">
                 <tr>
-                  <th className="py-2 px-4 border-b border-gray-600 text-gray-300">Details</th>
-                  <th className="py-2 px-4 border-b border-gray-600 text-right text-gray-300">Amount</th>
+                  <th className="py-2 px-4 border-b border-gray-600 text-gray-300">
+                    Details
+                  </th>
+                  <th className="py-2 px-4 border-b border-gray-600 text-right text-gray-300">
+                    Amount
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -358,7 +367,9 @@ function DetailComponent() {
                   ([key, value]) =>
                     !["cms_id", "rank", "name", "course"].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
-                        <td className="py-2 px-4 border-b border-gray-700">{formatLabel(key)}</td>
+                        <td className="py-2 px-4 border-b border-gray-700">
+                          {formatLabel(key)}
+                        </td>
                         <td className="py-2 px-4 border-b border-gray-700 text-right">
                           {typeof value === "number" ? value.toFixed(2) : value}
                         </td>
@@ -369,7 +380,7 @@ function DetailComponent() {
             </table>
           </div>
         </div>
-  
+
         {/* Action Buttons */}
         <div className="flex justify-between mt-6">
           <button
@@ -384,13 +395,10 @@ function DetailComponent() {
           >
             Generate PDF
           </button>
-          
         </div>
-  
       </div>
     </div>
   );
-  
 }
 
 // Helper function to format labels
