@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const MessBillEntry = () => {
-  const [entries, setEntries] = useState([]);
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
+  const location = useLocation();
+  const [formData, setFormData] = useState(location.state?.formData || {
     cms_id: "", // Should be number if possible
     rank: "",
     name: "",
@@ -131,30 +130,40 @@ const MessBillEntry = () => {
   
     setFormData({ ...formData, [name]: value });
   };
-  
-  
 
   const handleReviewNav = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
 
-    if (
-      !formData.cms_id ||
-      !formData.rank ||
-      !formData.name ||
-      !formData.course ||
-      !formData.receipt_no ||
-      !formData.current_bill ||
-      formData.current_bill == 0.0
-    ) {
-      console.error("Validation failed: Missing required fields");
+    // List of required fields
+    const requiredFields = [
+      "cms_id",
+      "rank",
+      "name",
+      "course",
+      "receipt_no",
+      "current_bill",
+    ];
+  
+    // Check for missing fields
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field]
+    );
+  
+    if (missingFields.length > 0) {
+      // Set error messages for missing fields
+      const newErrorMessages = {};
+      missingFields.forEach((field) => {
+        newErrorMessages[field] = "This field is required.";
+      });
       setErrorMessages((prev) => ({
         ...prev,
+        ...newErrorMessages,
         general: "Please fill in all mandatory fields.",
       }));
       return;
     }
-
+  
+    // Proceed with form submission logic
     console.log("All required fields are present");
 
     const selectedKeys = [
@@ -223,13 +232,23 @@ const MessBillEntry = () => {
   };
 
   return (
-    <div className="p-5">
-      <h1 className="text-4xl text-center mb-8 font-bold">Mess Bill Entry</h1>
-
-      <form onSubmit={handleReviewNav} className="grid gap-5 max-w-lg mx-auto">
+    <div className="p-5 bg-slate-800 min-h-screen">
+      <div className="flex items-center mb-8">
+        <button 
+          onClick={() => navigate('/userDashboard')} 
+          className="text-white bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg mr-4"
+        >
+          Back
+        </button>
+        <h1 className="text-4xl font-bold text-white text-center flex-grow">
+          Mess Bill Entry
+        </h1>
+      </div>
+  
+      <form onSubmit={handleReviewNav} className="grid gap-5 max-w-4xl mx-auto grid-cols-1 md:grid-cols-2">
         {Object.keys(formData).map((key) => (
           <div key={key} className="flex flex-col">
-            <label htmlFor={key} className="font-semibold text-gray-700">
+            <label htmlFor={key} className="font-semibold text-gray-300 mb-1">
               {key
                 .replace(/([a-z])([A-Z])/g, "$1 $2")
                 .replace(/\b\w/g, (char) => char.toUpperCase())}
@@ -254,24 +273,26 @@ const MessBillEntry = () => {
                 "receipt_no",
                 "current_bill",
               ].includes(key)}
-              className="p-2 border border-gray-300 rounded-lg"
+              className="p-2 border border-gray-600 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errorMessages[key] && (
-              <span className="text-red-500 text-sm">{errorMessages[key]}</span>
+              <span className="text-red-500 text-sm mt-1">{errorMessages[key]}</span>
             )}
           </div>
         ))}
-
-        <button
-          className="mt-4 py-2 bg-green-500 text-white rounded-lg cursor-pointer hover:bg-green-600"
-          type="submit"
-        >
-          Review Bill
-        </button>
-
+  
+        <div className="md:col-span-2">
+          <button
+            className="w-full mt-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700"
+            type="submit"
+          >
+            Review Bill
+          </button>
+        </div>
+  
         {submissionMessage && (
           <div
-            className={`mt-4 py-2 px-4 rounded-lg text-center ${
+            className={`md:col-span-2 mt-4 py-2 px-4 rounded-lg text-center ${
               submissionMessage.type === "success"
                 ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
@@ -281,9 +302,11 @@ const MessBillEntry = () => {
           </div>
         )}
       </form>
+
       
     </div>
   );
+  
 };
 
 export default MessBillEntry;
