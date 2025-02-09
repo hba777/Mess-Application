@@ -61,7 +61,7 @@
   },
   "build": {
     "appId": "com.my-mess-app",
-    "productName": "MessApplication",
+    "productName": "MessApplicationAdmin",
     "directories": {
       "output": "dist"
     },
