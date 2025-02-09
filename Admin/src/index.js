@@ -4,12 +4,8 @@ import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router-dom"; // Import RouterProvider and createHashRouter
 import App from "./App";
 import LoginPage from "./pages/auth/Login";
-import AdminPage from "./pages/admin/AdminOld";
-import AddUser from "./pages/admin/AddUser";
 import AddAdmin from "./components/dashboard/AddAdmin";
 import AddUsr from "./components/dashboard/AddUsr";
-import SendBill from "./pages/admin/SendBill";
-import MessBillEntry from "./pages/user/Entry";
 import Admin from "./pages/admin/Admin";
 import AddBills from "./components/dashboard/AddBills";
 import VerifyBills from "./components/dashboard/VerifyBills";

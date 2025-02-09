@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { db } from "../../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { jsPDF } from "jspdf";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,21 +27,7 @@ const SendBill = () => {
     setLoading(true);
 
     try {
-      //const billsRef = collection(db, "messBillEntries");
-      //const q = query(billsRef, where("armyNo", "==", paNumber));
-      //const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const fetchedBills = [];
-        querySnapshot.forEach((doc) =>
-          fetchedBills.push({ id: doc.id, ...doc.data() })
-        );
-        setBills(fetchedBills);
-        toast.success(`${fetchedBills.length} bill(s) found.`);
-      } else {
-        setBills([]);
-        toast.info("No bill data found for this PA number.");
-      }
+      
     } catch (err) {
       console.error("Error fetching bill data:", err);
       toast.error("Error fetching bill data.");

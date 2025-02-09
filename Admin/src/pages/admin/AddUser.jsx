@@ -21,8 +21,7 @@ const AddUser = () => {
     }
 
     setIsLoading(true);
-    const auth = getAuth();
-    
+        
     try {
       
 
