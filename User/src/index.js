@@ -5,9 +5,9 @@ import { createHashRouter, RouterProvider } from "react-router-dom"; // Import R
 import App from "./App";
 import LoginPage from "./pages/auth/Login";
 import LandingPage from "./pages/user/Landing";
-import UserBill from "./pages/admin/Dashboard";
 import MessBillEntry from "./pages/user/Entry";
 import ReviewBill from "./pages/user/ReviewBill";
+import UserBill from "./pages/user/Dashboard";
 
 // Create the router with route configuration
 const router = createHashRouter([
