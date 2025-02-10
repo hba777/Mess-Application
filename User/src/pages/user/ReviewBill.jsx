@@ -311,7 +311,7 @@ function DetailComponent() {
     );
 
     // Save PDF
-    doc.save("Mess_Bill.pdf");
+    doc.save("CID "+formData.cms_id+ " Mess_Bill.pdf");
   };
 
   return (
@@ -324,7 +324,7 @@ function DetailComponent() {
         >
           Back
         </button>
-
+z
         {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6">Receipt</h2>
 
