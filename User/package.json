@@ -1,5 +1,5 @@
 {
-  "name": "mess-application",
+  "name": "mess-application-user",
   "version": "0.1.0",
   "private": true,
   "main": "public/main.js",
@@ -60,10 +60,10 @@
     "wait-on": "^8.0.2"
   },
   "build": {
-    "appId": "com.my-mess-app",
-    "productName": "MessApplicationAdmin",
+    "appId": "com.my-mess-app.user",
+    "productName": "MessApplicationUser",
     "directories": {
-      "output": "dist"
+      "output": "dist-user"
     },
     "files": [
       "dist/**/*",
