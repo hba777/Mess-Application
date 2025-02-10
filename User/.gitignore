@@ -2,7 +2,7 @@
 
 # dependencies
 /node_modules
-/dist
+/dist-user
 /.pnp
 .pnp.js
 

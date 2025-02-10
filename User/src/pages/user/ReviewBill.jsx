@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../assets/MCSLogo.png";
+import { toast, ToastContainer } from "react-toastify";
 
 function DetailComponent() {
   const location = useLocation();
@@ -121,22 +122,12 @@ function DetailComponent() {
       }
 
       console.log("Data successfully sent to server");
-
       setErrorMessages({});
-
-      setSubmissionMessage({
-        type: "success",
-        text: "Entry successfully added to the database.",
-      });
+      toast.success("Bill was added successfully."); // Toast on success
     } catch (error) {
       console.error("Error in submitting data:", error);
-      setSubmissionMessage({
-        type: "error",
-        text: "Failed to add entry to the server: " + error.message,
-      });
+      toast.error("Failed to add entry to the server: " + error.message); // Toast on error
     }
-
-    setTimeout(() => setSubmissionMessage(null), 5000);
   };
 
   const generatePDF = () => {
@@ -316,6 +307,8 @@ function DetailComponent() {
 
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
+      {/* ToastContainer for notifications */}
+      <ToastContainer />
       <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
         {/* Back Button */}
         <button
@@ -370,7 +363,9 @@ function DetailComponent() {
                           {formatLabel(key)}
                         </td>
                         <td className="py-2 px-4 border-b border-gray-700 text-right">
-                          {typeof value === "number" ? value.toFixed(2) : value}
+                          {typeof value === "number"
+                            ? value.toFixed(2)
+                            : value}
                         </td>
                       </tr>
                     )
