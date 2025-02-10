@@ -1,7 +1,3 @@
-Here’s an updated README incorporating the API documentation from your images.  
-
----
-
 # Bill Management Application  
 
 A simple billing application with separate admin and user functionalities.  
