@@ -178,17 +178,13 @@ function DetailComponent() {
       20,
       detailsYStart + detailSpacing * 3
     );
-    doc.text(
-      `Membership No: ${formData.membershipNo || ""}`,
-      20,
-      detailsYStart + detailSpacing * 4
-    );
+    
 
     // Table headers and border
     const tableXStart = 20;
     const tableWidth = pageWidth - 40;
     const tableYStart = 97;
-    const tableHeight = 170;
+    const tableHeight = 180;
 
     // Draw table border
     doc.rect(tableXStart, tableYStart, tableWidth, tableHeight);
@@ -223,28 +219,42 @@ function DetailComponent() {
       { label: "Regt Subs (C/Fund)", value: formData.c_fund },
       { label: "Messing", value: formData.messing },
       { label: "Extra Messing", value: formData.e_messing },
-      { label: "Sui Gas-Messing", value: formData.sui_gas_per_day },
-      { label: "25% Gas-E/Messing", value: formData.sui_gas_25_percent },
-      { label: "Tea Bar MCS", value: formData.tea_bar_mcs },
-      {
-        label: "Elec Charges (Dining Hall)",
-        value: formData.dining_hall_charges,
-      },
-      { label: "Swpr Wages", value: formData.swpr },
+      { label: "Sui Gas (Messing)", value: formData.sui_gas_per_day },
+      { label: "25% Gas (Extra Messing)", value: formData.sui_gas_25_percent },
+      { label: "Tea Bar (MCS)", value: formData.tea_bar_mcs },
+      { label: "Dining Hall (Electric Charges)", value: formData.dining_hall_charges },
+      { label: "Sweeper Wages", value: formData.swpr },
       { label: "Laundry Charges", value: formData.laundry },
       { label: "Gar Mess", value: formData.gar_mess },
-      { label: "Room Maint", value: formData.room_maint },
-      { label: "Internet", value: formData.internet },
-      { label: "Lounge 160", value: formData.lounge_160 },
+      { label: "Room Maintenance", value: formData.room_maint },
+      { label: "Electric Charges (160 Block)", value: formData.elec_charges_160_block },
+      { label: "Internet Charges", value: formData.internet },
+      { label: "Service Charges", value: formData.svc_charges },
+      { label: "Sui Gas (BOQs)", value: formData.sui_gas_boqs },
+      { label: "Sui Gas (166 CD)", value: formData.sui_gas_166_cd },
+      { label: "Sui Gas (166 Block)", value: formData.sui_gas_166_block },
+      { label: "Lounge (160 Block)", value: formData.lounge_160 },
       { label: "Rent Charges", value: formData.rent_charges },
-      { label: "Fur Maint Charges", value: formData.fur_maint },
-      { label: "Gym Subs", value: formData.gym },
-      { label: "Café Maint Charges (MCS)", value: formData.cafe_maint_charges },
+      { label: "Furniture Maintenance", value: formData.fur_maint },
+      { label: "Sui Gas & Electricity (FTS)", value: formData.sui_gas_elec_fts },
+      { label: "Material Charges", value: formData.mat_charges },
+      { label: "HC/WA Charges", value: formData.hc_wa },
+      { label: "Gym Subscription", value: formData.gym },
+      { label: "Café Maintenance (MCS)", value: formData.cafe_maint_charges },
+      { label: "Dine Out", value: formData.dine_out },
+      { label: "Payamber Fund", value: formData.payamber },
+      { label: "Student Societies Fund", value: formData.student_societies_fund },
+      { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
+      { label: "Current Bill", value: formData.current_bill },
+      { label: "Arrears", value: formData.arrear },
+      { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
       { label: "Annual Corps Fund", value: formData.annual_corps_fund },
-      { label: "ACW (Med) Fund", value: formData.acw_med_fund },
-      { label: "Student Society Fund", value: formData.student_societies_fund },
-      { label: "1 Bill Charges (1 Link)", value: formData.bill_charges_1_link },
+      { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
+      { label: "Total Amount", value: formData.gTotal },
+      { label: "Amount Received", value: formData.amount_received },
+      { label: "Balance Amount", value: formData.balAmount },
     ];
+    
 
     let currentY = tableYStart + 15;
     const rowHeight = 6;

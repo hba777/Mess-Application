@@ -55,47 +55,23 @@ const MessBillEntry = () => {
     const { name, value } = e.target;
   
     const numericFields = [
-      "m_subs",
-      "saving",
-      "c_fund",
-      "messing",
-      "e_messing",
-      "sui_gas_per_day",
-      "sui_gas_25_percent",
-      "tea_bar_mcs",
-      "dining_hall_charges",
-      "swpr",
-      "laundry",
-      "gar_mess",
-      "room_maint",
-      "elec_charges_160_block",
-      "internet",
-      "svc_charges",
-      "sui_gas_boqs",
-      "sui_gas_166_cd",
-      "sui_gas_166_block",
-      "lounge_160",
-      "rent_charges",
-      "fur_maint",
-      "sui_gas_elec_fts",
-      "mat_charges",
-      "hc_wa",
-      "gym",
-      "cafe_maint_charges",
-      "dine_out",
-      "payamber",
-      "student_societies_fund",
-      "dinner_ni_jscmcc_69",
-      "current_bill",
-      "arrear",
-      "amount_received",
+      "m_subs", "saving", "c_fund", "messing", "e_messing",
+      "sui_gas_per_day", "sui_gas_25_percent", "tea_bar_mcs",
+      "dining_hall_charges", "swpr", "laundry", "gar_mess",
+      "room_maint", "elec_charges_160_block", "internet",
+      "svc_charges", "sui_gas_boqs", "sui_gas_166_cd",
+      "sui_gas_166_block", "lounge_160", "rent_charges",
+      "fur_maint", "sui_gas_elec_fts", "mat_charges", "hc_wa",
+      "gym", "cafe_maint_charges", "dine_out", "payamber",
+      "student_societies_fund", "dinner_ni_jscmcc_69",
+      "current_bill", "arrear", "amount_received"
     ];
   
     if (numericFields.includes(name)) {
-      // Disallow invalid characters such as `e`, `E`, `-`, `+`, etc.
-      if (/^\d*\.?\d*$/.test(value)) {
+      if (/^\d*\.?\d*$/.test(value)) { 
         setErrorMessages((prev) => ({ ...prev, [name]: "" }));
-        const updatedValue = parseFloat(value);
+  
+        const updatedValue = parseFloat(value) || 0;
         const updatedFormData = { ...formData, [name]: updatedValue };
   
         // Recalculate gTotal
@@ -104,7 +80,12 @@ const MessBillEntry = () => {
           0
         );
   
-        setFormData({ ...updatedFormData, gTotal });
+        // Recalculate balAmount dynamically
+        const amountReceived = updatedFormData.amount_received || 0;
+        const balAmount = gTotal - amountReceived;
+        console.log(balAmount);
+  
+        setFormData({ ...updatedFormData, gTotal, balAmount });
       } else {
         setErrorMessages((prev) => ({
           ...prev,
@@ -114,43 +95,18 @@ const MessBillEntry = () => {
       return;
     }
   
-    const charFields = ["rank", "name"];
-    if (charFields.includes(name)) {
-      if (/^[a-zA-Z\s]*$/.test(value)) {
-        setErrorMessages((prev) => ({ ...prev, [name]: "" }));
-        setFormData({ ...formData, [name]: value });
-      } else {
-        setErrorMessages((prev) => ({
-          ...prev,
-          [name]: "Please enter only alphabetic characters.",
-        }));
-      }
-      return;
-    }
-  
     setFormData({ ...formData, [name]: value });
   };
+  
+  
 
   const handleReviewNav = (e) => {
     e.preventDefault();
-
-    // List of required fields
-    const requiredFields = [
-      "cms_id",
-      "rank",
-      "name",
-      "course",
-      "receipt_no",
-      "current_bill",
-    ];
   
-    // Check for missing fields
-    const missingFields = requiredFields.filter(
-      (field) => !formData[field]
-    );
+    const requiredFields = ["cms_id", "rank", "name", "course", "receipt_no", "current_bill"];
+    const missingFields = requiredFields.filter((field) => !formData[field]);
   
     if (missingFields.length > 0) {
-      // Set error messages for missing fields
       const newErrorMessages = {};
       missingFields.forEach((field) => {
         newErrorMessages[field] = "This field is required.";
@@ -163,9 +119,6 @@ const MessBillEntry = () => {
       return;
     }
   
-    // Proceed with form submission logic
-    console.log("All required fields are present");
-
     const selectedKeys = [
       "m_subs",
       "saving",
@@ -201,35 +154,25 @@ const MessBillEntry = () => {
       "current_bill",
       "arrear",
     ];
-
-    console.log("Calculating total for selected keys:", selectedKeys);
-
-    const calculatedTotal = selectedKeys.reduce((sum, key) => {
-      const value = parseFloat(formData[key] || 0);
-      console.log(`Adding ${key}:`, value);
-      return sum + value;
-    }, 0);
-
-    console.log("Calculated total amount:", calculatedTotal);
-
+  
+    // const calculatedTotal = selectedKeys
+    //   .reduce((sum, key) => sum + (parseFloat(formData[key]) || 0), 0)
+    //   .toFixed(2);
+  
     const amountReceived = parseFloat(formData.amount_received || 0);
-    console.log("Amount received:", amountReceived);
-
-    const balanceAmount = calculatedTotal - amountReceived;
-    console.log("Balance amount:", balanceAmount);
-
+    // const balanceAmount = (calculatedTotal - amountReceived).toFixed(2);
+  
     const newEntry = {
       ...formData,
-      gTotal: calculatedTotal,
-      balAmount: balanceAmount,
+      // gTotal: calculatedTotal,
+      // balAmount: balanceAmount,
     };
-
-    console.log("New entry to be sent:", newEntry);
-
+  
+    console.log(newEntry);
     setTimeout(() => setSubmissionMessage(null), 5000);
-
-    navigate("/reviewBill", { state: { formData } });
+    navigate("/reviewBill", { state: { formData: newEntry } });
   };
+  
 
   return (
     <div className="p-5 bg-slate-800 min-h-screen">
