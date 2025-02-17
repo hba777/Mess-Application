@@ -30,14 +30,14 @@ const Header = () => {
               Summary
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/addBills"
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
               Add Bills
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               to="/verifyBills"
@@ -54,14 +54,14 @@ const Header = () => {
               Add User
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/addAdmin"
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
               Add Admin
             </Link>
-          </li>
+          </li> */}
 
           <li>
             <Link

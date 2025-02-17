@@ -15,7 +15,6 @@ function DetailComponent() {
   };
   const [errorMessages, setErrorMessages] = useState({});
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
@@ -123,7 +122,6 @@ function DetailComponent() {
       setErrorMessages({});
       toast.success("Bill was added successfully.");
       setLoading(true); // Disable button
-
     } catch (error) {
       console.error("Error in submitting data:", error);
       toast.error("Failed to add entry to the server: " + error.message);
@@ -153,7 +151,17 @@ function DetailComponent() {
     const textY = 15 + logoHeight + 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text("(Up to 25 Nov 2025)", pageWidth / 2, textY, { align: "center" });
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 8); // 8th of next month
+    const formattedDate = nextMonth.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+    doc.text(`(Up to ${formattedDate})`, pageWidth / 2, textY, {
+      align: "center",
+    });
 
     // Personal details
     doc.setFont("helvetica", "bold");
@@ -262,12 +270,12 @@ function DetailComponent() {
         value: formData.student_societies_fund,
       },
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
-      { label: "Current Bill", value: formData.current_bill },
-      { label: "Arrears", value: formData.arrear },
-      { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
-      { label: "Annual Corps Fund", value: formData.annual_corps_fund },
-      { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
-      { label: "Total Amount", value: formData.gTotal },
+      //  { label: "Current Bill", value: formData.current_bill },
+      //  { label: "Arrears", value: formData.arrear },
+      //  { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
+      //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
+      //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
+      //  { label: "Total Amount", value: formData.gTotal },
       { label: "Amount Received", value: formData.amount_received },
       { label: "Balance Amount", value: formData.balAmount },
     ];
@@ -277,8 +285,8 @@ function DetailComponent() {
       if (currentY + rowHeight > pageHeight - 20) {
         doc.addPage();
         drawPageBorder();
-        tableHeight = 140;
-        verticaLine = 100;
+        tableHeight = 110;
+        verticaLine = 65;
         currentY = drawTableHeader(20);
       }
 
@@ -303,18 +311,18 @@ function DetailComponent() {
     // Totals section
     doc.setFont("helvetica", "bold");
     doc.text("Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.current_bill || ""}`, verticalLineX + 15, currentY, {
+    doc.text(`${formData.current_bill || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     currentY += rowHeight;
     doc.text("Arrear:", tableXStart + 5, currentY);
-    doc.text(`${formData.arrear || ""}`, verticalLineX + 15, currentY, {
+    doc.text(`${formData.arrear || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
     currentY += rowHeight;
     doc.text("G. Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.gTotal || ""}`, verticalLineX + 15, currentY, {
+    doc.text(`${formData.gTotal || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
