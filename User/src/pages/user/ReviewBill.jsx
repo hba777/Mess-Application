@@ -7,14 +7,14 @@ import { toast, ToastContainer } from "react-toastify";
 function DetailComponent() {
   const location = useLocation();
   const { formData } = location.state;
-  const [newEntry, setNewEntry] = useState({});
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleBackNav = () => {
     navigate("/addBill", { state: { formData } });
   };
   const [errorMessages, setErrorMessages] = useState({});
-  const [submissionMessage, setSubmissionMessage] = useState(null);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ function DetailComponent() {
       !formData.course ||
       !formData.receipt_no ||
       !formData.current_bill ||
-      formData.current_bill == 0.0
+      formData.current_bill === 0.0
     ) {
       console.error("Validation failed: Missing required fields");
       setErrorMessages((prev) => ({
@@ -97,8 +97,6 @@ function DetailComponent() {
       balAmount: balanceAmount,
     };
 
-    setNewEntry(newEntry);
-
     console.log("New entry to be sent:", newEntry);
 
     try {
@@ -123,10 +121,13 @@ function DetailComponent() {
 
       console.log("Data successfully sent to server");
       setErrorMessages({});
-      toast.success("Bill was added successfully."); // Toast on success
+      toast.success("Bill was added successfully.");
+      setLoading(true); // Disable button
+
     } catch (error) {
       console.error("Error in submitting data:", error);
-      toast.error("Failed to add entry to the server: " + error.message); // Toast on error
+      toast.error("Failed to add entry to the server: " + error.message);
+      setLoading(false);
     }
   };
 
@@ -135,9 +136,12 @@ function DetailComponent() {
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
 
-    console.log(formData);
     // Page Border
-    doc.rect(10, 10, pageWidth - 20, pageHeight - 15);
+    const drawPageBorder = () => {
+      doc.rect(10, 10, pageWidth - 20, pageHeight - 15);
+    };
+
+    drawPageBorder(); // Draw border on the first page
 
     // Logo and title
     const logoWidth = 75;
@@ -145,12 +149,11 @@ function DetailComponent() {
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
 
-    // Add the specified text below the logo
-    const textY = 15 + logoHeight + 10; // 10 units below the logo
-    const text = "(Up to 25 Nov 2025)";
+    // Add date text below the logo
+    const textY = 15 + logoHeight + 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text(text, pageWidth / 2, textY, { align: "center" });
+    doc.text("(Up to 25 Nov 2025)", pageWidth / 2, textY, { align: "center" });
 
     // Personal details
     doc.setFont("helvetica", "bold");
@@ -178,41 +181,43 @@ function DetailComponent() {
       20,
       detailsYStart + detailSpacing * 3
     );
-    
 
-    // Table headers and border
+    // Table properties
     const tableXStart = 20;
     const tableWidth = pageWidth - 40;
     const tableYStart = 97;
-    const tableHeight = 180;
+    var tableHeight = 180;
+    const rowHeight = 6;
+    var verticaLine = tableHeight;
 
-    // Draw table border
-    doc.rect(tableXStart, tableYStart, tableWidth, tableHeight);
-
-    // Vertical line (centered within table border)
+    let currentY = tableYStart + 15; // Start of table content
     const verticalLineX = tableXStart + tableWidth / 2;
-    doc.line(
-      verticalLineX,
-      tableYStart,
-      verticalLineX,
-      tableYStart + tableHeight
-    );
 
-    // Header Text
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.text("Description", tableXStart + 5, tableYStart + 5);
-    doc.text("Amount (Rs)", verticalLineX + 5, tableYStart + 5);
+    // Draw table header on new page
+    const drawTableHeader = (yPosition) => {
+      doc.rect(tableXStart, yPosition, tableWidth, tableHeight);
+      doc.line(
+        verticalLineX,
+        yPosition,
+        verticalLineX,
+        yPosition + verticaLine
+      );
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text("Description", tableXStart + 5, yPosition + 5);
+      doc.text("Amount (Rs)", verticalLineX + 5, yPosition + 5);
+      doc.line(
+        tableXStart,
+        yPosition + 10,
+        tableXStart + tableWidth,
+        yPosition + 10
+      );
+      return yPosition + 15;
+    };
 
-    // Horizontal line under headers
-    doc.line(
-      tableXStart,
-      tableYStart + 10,
-      tableXStart + tableWidth,
-      tableYStart + 10
-    );
+    // Draw first table header
+    drawTableHeader(tableYStart);
 
-    // Table content
     const billItems = [
       { label: "Mess Subs", value: formData.m_subs },
       { label: "Offrs Saving", value: formData.saving },
@@ -222,12 +227,18 @@ function DetailComponent() {
       { label: "Sui Gas (Messing)", value: formData.sui_gas_per_day },
       { label: "25% Gas (Extra Messing)", value: formData.sui_gas_25_percent },
       { label: "Tea Bar (MCS)", value: formData.tea_bar_mcs },
-      { label: "Dining Hall (Electric Charges)", value: formData.dining_hall_charges },
+      {
+        label: "Dining Hall (Electric Charges)",
+        value: formData.dining_hall_charges,
+      },
       { label: "Sweeper Wages", value: formData.swpr },
       { label: "Laundry Charges", value: formData.laundry },
       { label: "Gar Mess", value: formData.gar_mess },
       { label: "Room Maintenance", value: formData.room_maint },
-      { label: "Electric Charges (160 Block)", value: formData.elec_charges_160_block },
+      {
+        label: "Electric Charges (160 Block)",
+        value: formData.elec_charges_160_block,
+      },
       { label: "Internet Charges", value: formData.internet },
       { label: "Service Charges", value: formData.svc_charges },
       { label: "Sui Gas (BOQs)", value: formData.sui_gas_boqs },
@@ -236,14 +247,20 @@ function DetailComponent() {
       { label: "Lounge (160 Block)", value: formData.lounge_160 },
       { label: "Rent Charges", value: formData.rent_charges },
       { label: "Furniture Maintenance", value: formData.fur_maint },
-      { label: "Sui Gas & Electricity (FTS)", value: formData.sui_gas_elec_fts },
+      {
+        label: "Sui Gas & Electricity (FTS)",
+        value: formData.sui_gas_elec_fts,
+      },
       { label: "Material Charges", value: formData.mat_charges },
       { label: "HC/WA Charges", value: formData.hc_wa },
       { label: "Gym Subscription", value: formData.gym },
       { label: "Café Maintenance (MCS)", value: formData.cafe_maint_charges },
       { label: "Dine Out", value: formData.dine_out },
       { label: "Payamber Fund", value: formData.payamber },
-      { label: "Student Societies Fund", value: formData.student_societies_fund },
+      {
+        label: "Student Societies Fund",
+        value: formData.student_societies_fund,
+      },
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
       { label: "Current Bill", value: formData.current_bill },
       { label: "Arrears", value: formData.arrear },
@@ -254,19 +271,27 @@ function DetailComponent() {
       { label: "Amount Received", value: formData.amount_received },
       { label: "Balance Amount", value: formData.balAmount },
     ];
-    
 
-    let currentY = tableYStart + 15;
-    const rowHeight = 6;
-
+    // Table content with page handling
     billItems.forEach((item) => {
-      const value = item.value ? item.value.toString() : "";
+      if (currentY + rowHeight > pageHeight - 20) {
+        doc.addPage();
+        drawPageBorder();
+        tableHeight = 140;
+        verticaLine = 100;
+        currentY = drawTableHeader(20);
+      }
+
       doc.setFont("helvetica", "normal");
       doc.text(item.label, tableXStart + 5, currentY);
-      doc.text(value, verticalLineX + 15, currentY, { align: "right" }); // Increased horizontal position by 5 units
-      currentY += rowHeight;
+      doc.text(
+        item.value ? item.value.toString() : "",
+        verticalLineX + 15,
+        currentY,
+        { align: "right" }
+      );
 
-      // Add horizontal line after each entry
+      currentY += rowHeight;
       doc.line(
         tableXStart,
         currentY - 4,
@@ -293,8 +318,10 @@ function DetailComponent() {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
+    currentY += rowHeight;
+    doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
 
-    // Footer notes with alignment to the right border of the table
+    // Footer notes
     currentY += 10;
     doc.setFont("helvetica", "normal");
     doc.text("Maj", pageWidth - 40, currentY, { align: "right" });
@@ -302,17 +329,17 @@ function DetailComponent() {
     currentY += 12;
     doc.text(
       "1. Bill to be paid before 8th of each month in cash.",
-      tableXStart,
+      tableXStart + 5,
       currentY
     );
     doc.text(
       "2. Query if any will be reported within three days after receipt of this bill.",
-      tableXStart,
+      tableXStart + 5,
       currentY + 4
     );
 
     // Save PDF
-    doc.save("CID "+formData.cms_id+ " Mess_Bill.pdf");
+    doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
   };
 
   return (
@@ -373,9 +400,7 @@ function DetailComponent() {
                           {formatLabel(key)}
                         </td>
                         <td className="py-2 px-4 border-b border-gray-700 text-right">
-                          {typeof value === "number"
-                            ? value.toFixed(2)
-                            : value}
+                          {typeof value === "number" ? value.toFixed(2) : value}
                         </td>
                       </tr>
                     )
@@ -389,9 +414,14 @@ function DetailComponent() {
         <div className="flex justify-between mt-6">
           <button
             onClick={handleSubmit}
-            className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+            className={`py-2 px-4 rounded-lg text-white ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            disabled={loading}
           >
-            Add Entry
+            {loading ? "Bill Added" : "Add Entry"}
           </button>
           <button
             onClick={() => generatePDF(formData)}
