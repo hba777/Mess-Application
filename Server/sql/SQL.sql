@@ -1,3 +1,4 @@
+-- admins
 CREATE TABLE IF NOT EXISTS admin (
   id SERIAL PRIMARY KEY,
   cmsid VARCHAR(100) UNIQUE NOT NULL,
@@ -7,7 +8,7 @@ CREATE TABLE IF NOT EXISTS admin (
 INSERT INTO admin (cmsid, password)
 VALUES ('admin', 'adminpassword');
 
--- Create the bill table (after users)
+-- users
 CREATE TABLE users (
     cms_id INT PRIMARY KEY,         -- Unique identifier for each user
     password VARCHAR(255) NOT NULL, -- User password (hashed for security)
@@ -20,9 +21,7 @@ CREATE TABLE users (
     total_due DECIMAL(10,2) DEFAULT 0.00  -- Total due amount (default 0)
 );
 
-SELECT * FROM users WHERE cms_id = '66890'
-
--- Create the bill table (after users)
+-- bill 
 CREATE TABLE bill (
     id SERIAL PRIMARY KEY,
     cms_id INT NOT NULL,  -- Foreign key referencing users.cms_id
@@ -68,9 +67,15 @@ CREATE TABLE bill (
     balAmount NUMERIC(10,2) DEFAULT 0;
 );
 
-
- 
-
-
-
-
+CREATE TABLE bill_payment (
+    id SERIAL PRIMARY KEY,
+    bill_id INT NOT NULL,  -- Foreign key referencing bill.id
+    transaction_id TEXT UNIQUE NOT NULL,  -- Unique transaction identifier
+    payer_cms_id INT NOT NULL,  -- CMS ID of the payer
+    payment_amount NUMERIC(10,2) NOT NULL,  -- Amount paid
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of payment
+    payment_method TEXT,  -- Method of payment (e.g., Bank Transfer, Cash)
+    receipt_number TEXT,  -- Receipt number for reference
+    status TEXT DEFAULT 'Pending',  -- Status of payment (Pending, Completed, Failed)
+    FOREIGN KEY (bill_id) REFERENCES bill(id) ON DELETE CASCADE
+);
