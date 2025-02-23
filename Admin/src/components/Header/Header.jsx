@@ -46,6 +46,7 @@ const Header = () => {
               Verify Bills
             </Link>
           </li>
+          
           <li>
             <Link
               to="/addUser"
@@ -69,6 +70,15 @@ const Header = () => {
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
               Get Bills
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/paidBills"
+              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
+            >
+              Paid Bills
             </Link>
           </li>
           <button
