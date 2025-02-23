@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../../assets/AppLogo.jpg";
+import { toast, ToastContainer } from "react-toastify";
 
 const BillDetails = () => {
   const location = useLocation();
@@ -251,6 +252,30 @@ const BillDetails = () => {
     doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
   };
 
+  const deleteBill = async (id) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/user/bill/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        navigate(-1);
+      } else {
+        toast.error("Failed to delete bill");
+      }
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+      toast.error("Failed to add entry to the server: " + error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
       <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
@@ -263,7 +288,7 @@ const BillDetails = () => {
         </button>
         {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6">Bill Details</h2>
-        
+
         {/* Bill Details Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border border-gray-700">
@@ -291,20 +316,25 @@ const BillDetails = () => {
             </tbody>
           </table>
         </div>
-  
-        {/* Action Button */}
-        <div className="flex justify-center mt-6">
+
+        {/* Action Buttons */}
+        <div className="flex justify-center mt-6 space-x-4">
           <button
             onClick={() => generatePDF()}
             className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Generate PDF
           </button>
+          <button
+            onClick={() => deleteBill(formData.id)}
+            className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Delete Bill
+          </button>
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default BillDetails;
