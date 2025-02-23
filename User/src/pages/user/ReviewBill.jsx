@@ -142,7 +142,7 @@ function DetailComponent() {
     drawPageBorder(); // Draw border on the first page
 
     // Logo and title
-    const logoWidth = 50;
+    const logoWidth = 40;
     const logoHeight = 40;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
