@@ -3,20 +3,33 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../../assets/AppLogo.jpg";
 import { toast, ToastContainer } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 
 const BillDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = location.state;
+  const BILL_ID_LABEL = process.env.REACT_APP_BILL_ID_LABEL || "1-Link Bill ID";
 
   console.log(formData);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
+  const [isBillPaid, setIsBillPaid] = useState(false);
+
+  const [paymentDetails] = useState({
+    transaction_id: uuidv4(),
+    payer_cms_id: formData.cms_id || "",
+    payment_amount: formData.amount_received || "",
+    payment_method: "1-Link",
+    receipt_number: formData.receipt_no || "",
+  });
 
   const authToken = localStorage.getItem("authToken");
 
   const generatePDF = () => {
+    console.log("Bill ID" + BILL_ID_LABEL);
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -29,7 +42,7 @@ const BillDetails = () => {
     drawPageBorder(); // Draw border on the first page
 
     // Logo and title
-    const logoWidth = 50;
+    const logoWidth = 40;
     const logoHeight = 40;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
@@ -159,7 +172,7 @@ const BillDetails = () => {
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
       //  { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
-      //  { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
+      { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
       //  { label: "Total Amount", value: formData.gTotal },
@@ -281,6 +294,39 @@ const BillDetails = () => {
     }
   };
 
+  const payBill = async () => {
+    try {
+      const requestData = {
+        bill_id: formData.id,
+        ...paymentDetails,
+        status: "Paid",
+      };
+      console.log("Sending payment data:", requestData);
+
+      const response = await fetch(
+        "http://localhost:5000/api/pay/bill-payment",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+      if (response.ok) {
+        toast.success("Bill payment successful");
+        setIsPaymentModalOpen(false);
+        setIsBillPaid(true);
+      } else {
+        toast.error("Failed to process bill payment");
+      }
+    } catch (error) {
+      console.error("Error processing bill payment:", error);
+      toast.error("An error occurred while processing the bill payment");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
       <ToastContainer />
@@ -309,16 +355,21 @@ const BillDetails = () => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(formData).map(([key, value], index) => (
-                <tr key={key} className={index % 2 === 0 ? "bg-gray-800" : ""}>
-                  <td className="py-2 px-4 border-b border-gray-700">
-                    {key.replace(/_/g, " ").toUpperCase()}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-700 text-right">
-                    {typeof value === "number" ? value.toFixed(2) : value}
-                  </td>
-                </tr>
-              ))}
+              {Object.entries(formData)
+                .filter(([key]) => key !== "id") // Exclude formData.id
+                .map(([key, value], index) => (
+                  <tr
+                    key={key}
+                    className={index % 2 === 0 ? "bg-gray-800" : ""}
+                  >
+                    <td className="py-2 px-4 border-b border-gray-700">
+                      {key.replace(/_/g, " ").toUpperCase()}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-700 text-right">
+                      {typeof value === "number" ? value.toFixed(2) : value}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -330,6 +381,17 @@ const BillDetails = () => {
             className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Generate PDF
+          </button>
+          <button
+            onClick={() => setIsPaymentModalOpen(true)}
+            className={`py-2 px-4 text-white rounded-lg ${
+              isBillPaid
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            disabled={isBillPaid}
+          >
+            Pay Bill
           </button>
           <button
             onClick={() => {
@@ -362,6 +424,31 @@ const BillDetails = () => {
                 className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
               >
                 No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bill Payment Modal */}
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Enter Payment Details
+            </h3>
+            <div className="flex justify-center space-x-4">
+              <button
+                className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                onClick={payBill}
+              >
+                Pay
+              </button>
+              <button
+                className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                onClick={() => setIsPaymentModalOpen(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>
