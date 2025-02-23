@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../../assets/AppLogo.jpg";
@@ -10,6 +10,11 @@ const BillDetails = () => {
   const { formData } = location.state;
 
   console.log(formData);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [billToDelete, setBillToDelete] = useState(null);
+
+  const authToken = localStorage.getItem("authToken");
 
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -253,7 +258,6 @@ const BillDetails = () => {
   };
 
   const deleteBill = async (id) => {
-    const authToken = localStorage.getItem("authToken");
     try {
       const response = await fetch(
         `http://localhost:5000/api/user/bill/${id}`,
@@ -266,6 +270,7 @@ const BillDetails = () => {
         }
       );
       if (response.ok) {
+        setIsModalOpen(false);
         navigate(-1);
       } else {
         toast.error("Failed to delete bill");
@@ -278,6 +283,7 @@ const BillDetails = () => {
 
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
+      <ToastContainer />
       <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
         {/* Back Button */}
         <button
@@ -326,13 +332,41 @@ const BillDetails = () => {
             Generate PDF
           </button>
           <button
-            onClick={() => deleteBill(formData.id)}
+            onClick={() => {
+              setBillToDelete(formData.id);
+              setIsModalOpen(true);
+            }}
             className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
           >
             Delete Bill
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this bill?
+            </h3>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => deleteBill(billToDelete)}
+                className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
