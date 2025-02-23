@@ -1,16 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
-import logo from "../../../assets/MCSLogo.png";
+import logo from "../../../assets/AppLogo.jpg";
+import { toast, ToastContainer } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 
 const BillDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = location.state;
+  const BILL_ID_LABEL = process.env.REACT_APP_BILL_ID_LABEL || "1-Link Bill ID";
 
   console.log(formData);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [billToDelete, setBillToDelete] = useState(null);
+  const [isBillPaid, setIsBillPaid] = useState(false);
+
+  const [paymentDetails] = useState({
+    transaction_id: uuidv4(),
+    payer_cms_id: formData.cms_id || "",
+    payment_amount: formData.amount_received || "",
+    payment_method: "1-Link",
+    receipt_number: formData.receipt_no || "",
+  });
+
+  const authToken = localStorage.getItem("authToken");
+
   const generatePDF = () => {
+    console.log("Bill ID" + BILL_ID_LABEL);
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -23,7 +42,7 @@ const BillDetails = () => {
     drawPageBorder(); // Draw border on the first page
 
     // Logo and title
-    const logoWidth = 75;
+    const logoWidth = 40;
     const logoHeight = 40;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
@@ -153,7 +172,7 @@ const BillDetails = () => {
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
       //  { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
-      //  { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
+      { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
       //  { label: "Total Amount", value: formData.gTotal },
@@ -166,7 +185,7 @@ const BillDetails = () => {
       if (currentY + rowHeight > pageHeight - 20) {
         doc.addPage();
         drawPageBorder();
-        tableHeight = 110;
+        tableHeight = 120;
         verticaLine = 65;
         currentY = drawTableHeader(20);
       }
@@ -226,53 +245,215 @@ const BillDetails = () => {
       tableXStart + 5,
       currentY + 4
     );
+    doc.text(
+      "3. This is a computerized bill and does not require a signature",
+      tableXStart + 5,
+      currentY + 8
+    );
+    doc.text(
+      "4. Queries, if any, should be reported to the Mess Secretary within two days of receipt of this bill.",
+      tableXStart + 5,
+      currentY + 12
+    );
+    doc.text(
+      "5. No queries will be entertained after the two-day period.",
+      tableXStart + 5,
+      currentY + 16
+    );
+    doc.text(
+      "6. All outstation cheques should include bank commission at the current rate.",
+      tableXStart + 5,
+      currentY + 20
+    );
 
     // Save PDF
     doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
   };
 
+  const deleteBill = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/user/bill/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        setIsModalOpen(false);
+        navigate(-1);
+      } else {
+        toast.error("Failed to delete bill");
+      }
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+      toast.error("Failed to add entry to the server: " + error.message);
+    }
+  };
+
+  const payBill = async () => {
+    try {
+      const requestData = {
+        bill_id: formData.id,
+        ...paymentDetails,
+        status: "Paid",
+      };
+      console.log("Sending payment data:", requestData);
+
+      const response = await fetch(
+        "http://localhost:5000/api/pay/bill-payment",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+      if (response.ok) {
+        toast.success("Bill payment successful");
+        setIsPaymentModalOpen(false);
+        setIsBillPaid(true);
+      } else {
+        toast.error("Failed to process bill payment");
+      }
+    } catch (error) {
+      console.error("Error processing bill payment:", error);
+      toast.error("An error occurred while processing the bill payment");
+    }
+  };
+
   return (
-    <div className="bg-slate-800 min-h-screen p-4 text-white">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Back
-      </button>
-      <h1 className="text-2xl font-bold mb-4">Bill Details</h1>
-      <div className="overflow-x-auto p-8">
-        <table className="min-w-full bg-white text-gray-800">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="px-6 py-3 text-left font-medium text-gray-700">
-                Details
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-gray-700">
-                Amount
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(formData).map(([key, value], index) => (
-              <tr
-                key={key}
-                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-              >
-                <td className="px-6 py-4 font-medium">{key}</td>
-                <td className="px-6 py-4">{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex justify-center mt-4">
+    <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
+      <ToastContainer />
+      <div className="max-w-lg w-full p-6 bg-gray-900 border border-gray-700 rounded-lg shadow-lg text-white">
+        {/* Back Button */}
         <button
-          onClick={() => generatePDF()}
-          className="px-4 py-2 bg-blue-800 text-white rounded hover:bg-slate-600"
+          onClick={() => navigate(-1)}
+          className="mb-4 py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
         >
-          Generate PDF
+          Back
         </button>
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-center mb-6">Bill Details</h2>
+
+        {/* Bill Details Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border border-gray-700">
+            <thead className="bg-gray-800">
+              <tr>
+                <th className="py-2 px-4 border-b border-gray-600 text-gray-300">
+                  Details
+                </th>
+                <th className="py-2 px-4 border-b border-gray-600 text-right text-gray-300">
+                  Amount
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(formData)
+                .filter(([key]) => key !== "id") // Exclude formData.id
+                .map(([key, value], index) => (
+                  <tr
+                    key={key}
+                    className={index % 2 === 0 ? "bg-gray-800" : ""}
+                  >
+                    <td className="py-2 px-4 border-b border-gray-700">
+                      {key.replace(/_/g, " ").toUpperCase()}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-700 text-right">
+                      {typeof value === "number" ? value.toFixed(2) : value}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center mt-6 space-x-4">
+          <button
+            onClick={() => generatePDF()}
+            className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Generate PDF
+          </button>
+          <button
+            onClick={() => setIsPaymentModalOpen(true)}
+            className={`py-2 px-4 text-white rounded-lg ${
+              isBillPaid
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            disabled={isBillPaid}
+          >
+            Pay Bill
+          </button>
+          <button
+            onClick={() => {
+              setBillToDelete(formData.id);
+              setIsModalOpen(true);
+            }}
+            className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Delete Bill
+          </button>
+        </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this bill?
+            </h3>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => deleteBill(billToDelete)}
+                className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bill Payment Modal */}
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Enter Payment Details
+            </h3>
+            <div className="flex justify-center space-x-4">
+              <button
+                className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                onClick={payBill}
+              >
+                Pay
+              </button>
+              <button
+                className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                onClick={() => setIsPaymentModalOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

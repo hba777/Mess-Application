@@ -1,4 +1,4 @@
-import logo from "../../assets/MCSBackgroundRemoved.png";
+import logo from "../../assets/AppBackgroundRemoved.png";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
