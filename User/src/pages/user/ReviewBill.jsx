@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
-import logo from "../../assets/MCSLogo.png";
+import logo from "../../assets/AppLogo.jpg";
 import { toast, ToastContainer } from "react-toastify";
 
 function DetailComponent() {
@@ -142,7 +142,7 @@ function DetailComponent() {
     drawPageBorder(); // Draw border on the first page
 
     // Logo and title
-    const logoWidth = 75;
+    const logoWidth = 50;
     const logoHeight = 40;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(logo, "JPEG", logoX, 15, logoWidth, logoHeight);
@@ -203,7 +203,7 @@ function DetailComponent() {
 
     // Draw table header on new page
     const drawTableHeader = (yPosition) => {
-      doc.rect(tableXStart, yPosition, tableWidth, tableHeight);
+      doc.rect(tableXStart, yPosition , tableWidth, tableHeight);
       doc.line(
         verticalLineX,
         yPosition,
@@ -285,7 +285,7 @@ function DetailComponent() {
       if (currentY + rowHeight > pageHeight - 20) {
         doc.addPage();
         drawPageBorder();
-        tableHeight = 110;
+        tableHeight = 120;
         verticaLine = 65;
         currentY = drawTableHeader(20);
       }
@@ -344,6 +344,26 @@ function DetailComponent() {
       "2. Query if any will be reported within three days after receipt of this bill.",
       tableXStart + 5,
       currentY + 4
+    );
+    doc.text(
+      "3. This is a computerized bill and does not require a signature",
+      tableXStart + 5,
+      currentY + 8
+    );
+    doc.text(
+      "4. Queries, if any, should be reported to the Mess Secretary within two days of receipt of this bill.",
+      tableXStart + 5,
+      currentY + 12
+    );
+    doc.text(
+      "5. No queries will be entertained after the two-day period.",
+      tableXStart + 5,
+      currentY + 16
+    );
+    doc.text(
+      "6. All outstation cheques should include bank commission at the current rate.",
+      tableXStart + 5,
+      currentY + 20
     );
 
     // Save PDF

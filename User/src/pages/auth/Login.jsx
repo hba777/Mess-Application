@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import logo from "../../assets/MCSBackgroundRemoved.png";
+import logo from "../../assets/AppBackgroundRemoved.png";
 
 const LoginPage = () => {
   const [cmsId, setCmsId] = useState("");

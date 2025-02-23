@@ -74,7 +74,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "public/MCS.jpg"
+      "icon": "public/AppLogo.jpg"
     }
   }
 }
