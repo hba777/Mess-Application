@@ -130,10 +130,37 @@ const deleteBillPayment = async (req, res) => {
   }
 };
 
+// 🔹 Get Pending Amounts (All or Specific CMS ID)
+const getPendingAmounts = async (req, res) => {
+  const { cms_id } = req.params;
+
+  try {
+    let query = "SELECT * FROM track_pending_amount()";
+    let values = [];
+
+    if (cms_id) {
+      query += " WHERE cms_id = $1";
+      values.push(cms_id);
+    }
+
+    const result = await queryDb(query, values);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: "No pending amount found" });
+    }
+
+    res.json(result.length === 1 ? result[0] : result);
+  } catch (err) {
+    console.error("Error in getPendingAmounts:", err);
+    res.status(500).json({ message: "Error fetching pending amounts" });
+  }
+};
+
 module.exports = {
   getBillPayments,
   getBillPaymentById,
   createBillPayment,
   updateBillPayment,
   deleteBillPayment,
+  getPendingAmounts,
 };
