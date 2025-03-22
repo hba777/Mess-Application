@@ -25,7 +25,7 @@ const GetUsers = () => {
   }, []);
 
   const filteredUsers = users.filter(user =>
-    user.cms_id.toString().includes(searchTerm)
+    user.name.includes(searchTerm)
   );
 
   return (
@@ -40,7 +40,7 @@ const GetUsers = () => {
       <div className="flex mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by CMS ID"
+          placeholder="Search by Name"
           className="p-2 border border-gray-300 rounded"
           onChange={e => setSearchTerm(e.target.value)}
         />
