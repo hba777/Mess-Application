@@ -13,10 +13,38 @@ export default function AddUser() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Validate Form Before Submission
+  const validateForm = () => {
+    if (
+      !cms_id.trim() ||
+      !name.trim() ||
+      !password.trim() ||
+      !department.trim() ||
+      !rank.trim() ||
+      !pma_course.trim() ||
+      !degree.trim() ||
+      !phone_number.trim()
+    ) {
+      setMessage("All fields are required.");
+      return false;
+    }
+
+    const phoneRegex = /^03\d{9}$/; // Pakistani phone format: 03001234567
+    if (!phoneRegex.test(phone_number)) {
+      setMessage("Invalid phone number format. Use: 03XXXXXXXXX");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
+
+    if (!validateForm()) return; // Stop if validation fails
+
+    setLoading(true);
 
     try {
       const token = localStorage.getItem("authToken");
@@ -74,46 +102,15 @@ export default function AddUser() {
       <div className="space-y-4">
         <div className="bg-slate-200 p-4 rounded-lg shadow-md flex flex-col items-center">
           <form onSubmit={handleSubmit} className="w-full max-w-md">
-            {[
-              {
-                id: "cms_id",
-                label: "CMS ID",
-                state: cms_id,
-                setState: setCmsId,
-              },
+            {[ 
+              { id: "cms_id", label: "CMS ID", state: cms_id, setState: setCmsId },
               { id: "name", label: "Name", state: name, setState: setName },
-              {
-                id: "password",
-                label: "Password",
-                state: password,
-                setState: setPassword,
-                type: "password",
-              },
-              {
-                id: "department",
-                label: "Department",
-                state: department,
-                setState: setDepartment,
-              },
+              { id: "password", label: "Password", state: password, setState: setPassword, type: "password" },
+              { id: "department", label: "Department", state: department, setState: setDepartment },
               { id: "rank", label: "Rank", state: rank, setState: setRank },
-              {
-                id: "pma_course",
-                label: "PMA Course",
-                state: pma_course,
-                setState: setPmaCourse,
-              },
-              {
-                id: "degree",
-                label: "Degree",
-                state: degree,
-                setState: setDegree,
-              },
-              {
-                id: "phone_number",
-                label: "Phone Number",
-                state: phone_number,
-                setState: setPhoneNumber,
-              },
+              { id: "pma_course", label: "PMA Course", state: pma_course, setState: setPmaCourse },
+              { id: "degree", label: "Degree", state: degree, setState: setDegree },
+              { id: "phone_number", label: "Phone Number", state: phone_number, setState: setPhoneNumber },
             ].map((field) => (
               <div key={field.id} className="mb-4 w-full">
                 <label htmlFor={field.id} className="block text-gray-700">

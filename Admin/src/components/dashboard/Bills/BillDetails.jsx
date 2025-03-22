@@ -4,6 +4,7 @@ import { jsPDF } from "jspdf";
 import logo from "../../../assets/AppLogo.jpg";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 const BillDetails = () => {
   const location = useLocation();
@@ -327,6 +328,50 @@ const BillDetails = () => {
     }
   };
 
+  const sendToWhatsApp = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken"); // Retrieve Bearer token
+      const response = await axios.get(
+        "http://localhost:5000/api/admin/users",
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+  
+      const users = response.data; // Assuming the response contains an array of users
+      const user = users.find((u) => u.cms_id === formData.cms_id); // Match CMS ID
+  
+      // For testing purposes, use a hardcoded phone number
+      const phoneNumber = "03345098296"; // Pakistani number format
+  
+      if (!phoneNumber) {
+        alert("Phone number not found for this CMS ID.");
+        return;
+      }
+  
+      const message = encodeURIComponent(
+        `Bill Details:\n${Object.entries(formData)
+          .filter(([key]) => key !== "id")
+          .map(([key, value]) => `${key.replace(/_/g, " ")}: ${value}`)
+          .join("\n")}`
+      );
+      const whatsappurl=`https://wa.me/92${phoneNumber.slice(1)}?text=${message}`;
+      console.log(whatsappurl);
+      window.open(whatsappurl, "_blank"); // WhatsApp API link
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Failed to fetch user details.");
+    }
+  };
+  
+  
+  
+  
+  
+  
+
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
       <ToastContainer />
@@ -402,6 +447,12 @@ const BillDetails = () => {
           >
             Delete Bill
           </button>
+          <button
+            onClick={sendToWhatsApp}
+            className="py-2 px-4 bg-green-400 text-white rounded-lg hover:bg-green-500"
+          >
+            Send to WhatsApp
+          </button>
         </div>
       </div>
 
@@ -435,7 +486,7 @@ const BillDetails = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
             <h3 className="text-lg font-semibold mb-4">
-              Enter Payment Details
+              Confirm Payment
             </h3>
             <div className="flex justify-center space-x-4">
               <button

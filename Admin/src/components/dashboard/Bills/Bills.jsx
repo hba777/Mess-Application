@@ -120,7 +120,7 @@ const Bills = () => {
           >
             <h2 className="text-xl font-semibold text-gray-800">{bill.name}</h2>
             <p className="text-gray-600">CMS ID: {bill.cms_id}</p>
-            <p className="text-gray-600">Total Amount: {bill.gTotal}</p>
+            <p className="text-gray-600">Total Amount: {bill.gtotal}</p>
           </div>
         ))}
       </div>
