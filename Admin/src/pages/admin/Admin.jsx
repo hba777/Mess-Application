@@ -5,6 +5,7 @@ import VerifyBills from '../../components/dashboard/VerifyBills';
 import Summary from '../../components/dashboard/Summary';
 import Header from '../../components/Header/Header';
 import DateComponent from '../../components/Date';
+import GetUsers from '../../components/dashboard/GetUsers';
 
 
 
@@ -23,6 +24,7 @@ export default function Admin() {
           <Route path="/" element={<Summary />} />
           <Route path="/addBills" element={<AddBills />} />
           <Route path="/verifyBills" element={<VerifyBills />} />
+          <Route path="/getUsers" element={<GetUsers />} />
         </Routes>
       </div>
     </div>

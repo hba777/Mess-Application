@@ -55,6 +55,14 @@ const Header = () => {
               Add User
             </Link>
           </li>
+          <li>
+            <Link
+              to="/getUsers"
+              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
+            >
+              Get Users
+            </Link>
+          </li>
           {/* <li>
             <Link
               to="/addAdmin"
