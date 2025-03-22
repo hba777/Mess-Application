@@ -339,38 +339,43 @@ const BillDetails = () => {
           },
         }
       );
-  
+
       const users = response.data; // Assuming the response contains an array of users
       const user = users.find((u) => u.cms_id === formData.cms_id); // Match CMS ID
-  
-      // For testing purposes, use a hardcoded phone number
-      const phoneNumber = "03345098296"; // Pakistani number format
-  
-      if (!phoneNumber) {
+
+      if (!user || !user.phone_number) {
         alert("Phone number not found for this CMS ID.");
         return;
       }
-  
+
+      let phoneNumber = user.phone_number.replace(/\D/g, ""); // Remove non-numeric characters
+
+      // Ensure correct Pakistani format
+      if (phoneNumber.startsWith("0")) {
+        phoneNumber = "92" + phoneNumber.slice(1);
+      } else if (!phoneNumber.startsWith("92")) {
+        phoneNumber = "92" + phoneNumber;
+      }
+
+      console.log("Final Phone Number:", phoneNumber); // Debugging
+      console.log("User Data:", user); // Debugging
+
       const message = encodeURIComponent(
         `Bill Details:\n${Object.entries(formData)
           .filter(([key]) => key !== "id")
           .map(([key, value]) => `${key.replace(/_/g, " ")}: ${value}`)
           .join("\n")}`
       );
-      const whatsappurl=`https://wa.me/92${phoneNumber.slice(1)}?text=${message}`;
-      console.log(whatsappurl);
-      window.open(whatsappurl, "_blank"); // WhatsApp API link
+
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+      console.log("WhatsApp URL:", whatsappURL); // Debugging
+
+      window.open(whatsappURL, "_blank"); // WhatsApp API link
     } catch (error) {
       console.error("Error fetching user data:", error);
       alert("Failed to fetch user details.");
     }
   };
-  
-  
-  
-  
-  
-  
 
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-6">
@@ -485,9 +490,7 @@ const BillDetails = () => {
       {isPaymentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm text-white text-center">
-            <h3 className="text-lg font-semibold mb-4">
-              Confirm Payment
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Confirm Payment</h3>
             <div className="flex justify-center space-x-4">
               <button
                 className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
