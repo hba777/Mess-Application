@@ -21,8 +21,8 @@ function DetailComponent() {
 
     if (
       !formData.cms_id ||
-      !formData.rank ||
-      !formData.name ||
+      // !formData.rank ||
+      // !formData.name ||
       !formData.course ||
       !formData.receipt_no ||
       !formData.current_bill ||
@@ -174,20 +174,20 @@ function DetailComponent() {
       20,
       detailsYStart
     );
-    doc.text(
-      `Rank:              ${formData.rank || ""}`,
-      20,
-      detailsYStart + detailSpacing
-    );
-    doc.text(
-      `Name:              ${formData.name || ""}`,
-      20,
-      detailsYStart + detailSpacing * 2
-    );
+    // doc.text(
+    //   `Rank:              ${formData.rank || ""}`,
+    //   20,
+    //   detailsYStart + detailSpacing
+    // );
+    // doc.text(
+    //   `Name:              ${formData.name || ""}`,
+    //   20,
+    //   detailsYStart + detailSpacing * 2
+    // );
     doc.text(
       `Course:           ${formData.course || ""}`,
       20,
-      detailsYStart + detailSpacing * 3
+      detailsYStart + detailSpacing * 1.5
     );
 
     // Table properties
@@ -391,7 +391,10 @@ function DetailComponent() {
             Personal Information
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            {["cms_id", "rank", "name", "course"].map((key) => (
+            {["cms_id",
+            //  "rank",
+            //   "name",
+               "course"].map((key) => (
               <div key={key} className="flex justify-between">
                 <span className="font-medium">
                   {key.replace(/_/g, " ").toUpperCase()}:
@@ -422,7 +425,10 @@ function DetailComponent() {
               <tbody>
                 {Object.entries(formData).map(
                   ([key, value]) =>
-                    !["cms_id", "rank", "name", "course"].includes(key) && (
+                    !["cms_id",
+                      //  "rank",
+                      //   "name",
+                         "course"].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
                         <td className="py-2 px-4 border-b border-gray-700">
                           {formatLabel(key)}

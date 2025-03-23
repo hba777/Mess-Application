@@ -6,8 +6,8 @@ const MessBillEntry = () => {
   const location = useLocation();
   const [formData, setFormData] = useState(location.state?.formData || {
     cms_id: "", // Should be number if possible
-    rank: "",
-    name: "",
+    // rank: "",
+    // name: "",
     course: "",
     m_subs: 0.0,
     saving: 0.0,
@@ -103,7 +103,10 @@ const MessBillEntry = () => {
   const handleReviewNav = (e) => {
     e.preventDefault();
   
-    const requiredFields = ["cms_id", "rank", "name", "course", "receipt_no", "current_bill"];
+    const requiredFields = ["cms_id",
+      //  "rank",
+      //   "name",
+         "course", "receipt_no", "current_bill"];
     const missingFields = requiredFields.filter((field) => !formData[field]);
   
     if (missingFields.length > 0) {
@@ -200,7 +203,9 @@ const MessBillEntry = () => {
             <input
               type={
                 key === "receipt_no" ||
-                ["rank", "name", "course", "current_bill"].includes(key)
+                [//"rank",
+                   //"name",
+                    "course", "current_bill"].includes(key)
                   ? "text"
                   : "number"
               }
@@ -210,8 +215,8 @@ const MessBillEntry = () => {
               onChange={handleChange}
               required={[
                 "cms_id",
-                "rank",
-                "name",
+                //"rank",
+                //"name",
                 "course",
                 "receipt_no",
                 "current_bill",

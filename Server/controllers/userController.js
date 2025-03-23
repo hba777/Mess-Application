@@ -36,8 +36,8 @@ const createBill = async (req, res) => {
   try {
     const {
       cms_id,
-      rank,
-      name,
+      rank = null, // Default to null if not provided
+      name = null, // Default to null if not provided
       course,
       m_subs,
       saving,
@@ -79,9 +79,9 @@ const createBill = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!cms_id || !rank || !name || !course || !current_bill) {
+    if (!cms_id || !course || !current_bill) {
       return res.status(400).json({
-        message: "CMS ID, Rank, Name, Course, and Current Bill are required",
+        message: "CMS ID, Course, and Current Bill are required",
       });
     }
 
@@ -101,8 +101,8 @@ const createBill = async (req, res) => {
       ) RETURNING *`,
       [
         cms_id,
-        rank,
-        name,
+        rank, // Now optional
+        name, // Now optional
         course,
         m_subs,
         saving,
@@ -139,8 +139,8 @@ const createBill = async (req, res) => {
         arrear,
         receipt_no,
         amount_received,
-        gTotal, // <-- Added here
-        balAmount, // <-- Added here
+        gTotal,
+        balAmount,
       ]
     );
 
@@ -166,6 +166,7 @@ const createBill = async (req, res) => {
       .json({ message: "Error creating bill", error: err.message });
   }
 };
+
 
 // Get all bills
 const getBills = async (req, res) => {
