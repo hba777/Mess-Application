@@ -9,6 +9,7 @@ function DetailComponent() {
   const { formData } = location.state;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const BILL_ID_LABEL = process.env.REACT_APP_BILL_ID_LABEL || "1-Link Bill ID";
 
   const handleBackNav = () => {
     navigate("/addBill", { state: { formData } });
@@ -272,7 +273,7 @@ function DetailComponent() {
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
       //  { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
-      //  { label: "1-Link Bill Charges", value: formData.bill_charges_1_link },
+      { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
       //  { label: "Total Amount", value: formData.gTotal },
@@ -286,7 +287,7 @@ function DetailComponent() {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 59;
+        verticaLine = 65;
         currentY = drawTableHeader(20);
       }
 

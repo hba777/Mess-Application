@@ -187,7 +187,7 @@ const BillDetails = () => {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 59;
+        verticaLine = 65;
         currentY = drawTableHeader(20);
       }
 
@@ -225,7 +225,7 @@ const BillDetails = () => {
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
     currentY += rowHeight;
     doc.text("Balance Amount:", tableXStart + 5, currentY);
-    doc.text(`${formData.balAmount || ""}`, verticalLineX + 20, currentY, {
+    doc.text(`${formData.balamount || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);

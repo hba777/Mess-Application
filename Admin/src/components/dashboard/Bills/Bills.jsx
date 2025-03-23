@@ -69,24 +69,51 @@ const Bills = () => {
   ];
 
   const exportToExcel = () => {
-    const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+    const currentMonth = new Date().toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
+  
+    const BILL_ID_VALUE = process.env.REACT_APP_BILL_ID_VALUE || "123456789"; // Replace with actual ID
+  
     const data = bills.map((bill, index) => {
-      let formattedBill = { SerNo: index + 1 };
+      let formattedBill = { SerNo: index + 1, "CMS ID": bill.cms_id || "" }; // CMS ID as the first column
+  
       billItems.forEach(({ label, key }) => {
-        formattedBill[label] = bill[key] || '';
+        if (key !== "BILL_ID_LABEL") {
+          formattedBill[label] = bill[key] || "";
+        }
       });
+  
+      formattedBill["1-Link Bill ID"] = BILL_ID_VALUE; // 1-Link Bill ID as the last column
+  
       return formattedBill;
     });
-
+  
     const worksheet = XLSX.utils.json_to_sheet([{}]);
-    XLSX.utils.sheet_add_aoa(worksheet, [[`Bills for ${currentMonth}`]], { origin: "A1", font: { bold: true } });
-    worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: Object.keys(data[0] || {}).length } }];
+  
+    // Add title row
+    XLSX.utils.sheet_add_aoa(worksheet, [[`Bills for ${currentMonth}`]], {
+      origin: "A1",
+    });
+  
+    // Merge title row across columns
+    worksheet["!merges"] = [
+      {
+        s: { r: 0, c: 0 },
+        e: { r: 0, c: Object.keys(data[0] || {}).length },
+      },
+    ];
+  
+    // Add the data starting from row 3
     XLSX.utils.sheet_add_json(worksheet, data, { origin: "A3", skipHeader: false });
-    
+  
+    // Create and save the workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bills');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bills");
     XLSX.writeFile(workbook, `${currentMonth} Bill.xlsx`);
   };
+  
 
   return (
     <div className="bg-slate-800 min-h-screen p-4">
@@ -119,7 +146,7 @@ const Bills = () => {
             onClick={() => handleCardClick(bill)}
           >
             {/* <h2 className="text-xl font-semibold text-gray-800">{bill.name}</h2> */}
-            <h2 className="text-xl font-semibold text-gray-800">CMS ID: {bill.cms_id}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">CMS ID:{bill.cms_id}</h2>
             {/* <p className="text-gray-600">CMS ID: {bill.cms_id}</p> */}
             <p className="text-gray-600">Total Amount: {bill.gtotal}</p>
           </div>
