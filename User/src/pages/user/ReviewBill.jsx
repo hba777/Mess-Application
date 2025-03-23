@@ -25,9 +25,7 @@ function DetailComponent() {
       // !formData.rank ||
       // !formData.name ||
       !formData.course ||
-      !formData.receipt_no ||
-      !formData.current_bill ||
-      formData.current_bill === 0.0
+      !formData.receipt_no
     ) {
       console.error("Validation failed: Missing required fields");
       setErrorMessages((prev) => ({
@@ -204,7 +202,7 @@ function DetailComponent() {
 
     // Draw table header on new page
     const drawTableHeader = (yPosition) => {
-      doc.rect(tableXStart, yPosition , tableWidth, tableHeight);
+      doc.rect(tableXStart, yPosition, tableWidth, tableHeight);
       doc.line(
         verticalLineX,
         yPosition,
@@ -393,10 +391,12 @@ function DetailComponent() {
             Personal Information
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            {["cms_id",
-            //  "rank",
-            //   "name",
-               "course"].map((key) => (
+            {[
+              "cms_id",
+              //  "rank",
+              //   "name",
+              "course",
+            ].map((key) => (
               <div key={key} className="flex justify-between">
                 <span className="font-medium">
                   {key.replace(/_/g, " ").toUpperCase()}:
@@ -427,10 +427,12 @@ function DetailComponent() {
               <tbody>
                 {Object.entries(formData).map(
                   ([key, value]) =>
-                    !["cms_id",
+                    ![
+                      "cms_id",
                       //  "rank",
                       //   "name",
-                         "course"].includes(key) && (
+                      "course",
+                    ].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
                         <td className="py-2 px-4 border-b border-gray-700">
                           {formatLabel(key)}
