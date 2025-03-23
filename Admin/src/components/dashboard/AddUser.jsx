@@ -17,10 +17,10 @@ export default function AddUser() {
   const validateForm = () => {
     if (
       !cms_id.trim() ||
-      !name.trim() ||
+      // !name.trim() ||
       !password.trim() ||
       !department.trim() ||
-      !rank.trim() ||
+      // !rank.trim() ||
       !pma_course.trim() ||
       !degree.trim() ||
       !phone_number.trim()
@@ -52,10 +52,10 @@ export default function AddUser() {
         "http://localhost:5000/api/admin/user",
         {
           cms_id,
-          name,
+          //name,
           password,
           department,
-          rank,
+          //rank,
           pma_course,
           degree,
           phone_number,
@@ -104,10 +104,10 @@ export default function AddUser() {
           <form onSubmit={handleSubmit} className="w-full max-w-md">
             {[ 
               { id: "cms_id", label: "CMS ID", state: cms_id, setState: setCmsId },
-              { id: "name", label: "Name", state: name, setState: setName },
+              //{ id: "name", label: "Name", state: name, setState: setName },
               { id: "password", label: "Password", state: password, setState: setPassword, type: "password" },
               { id: "department", label: "Department", state: department, setState: setDepartment },
-              { id: "rank", label: "Rank", state: rank, setState: setRank },
+              //{ id: "rank", label: "Rank", state: rank, setState: setRank },
               { id: "pma_course", label: "PMA Course", state: pma_course, setState: setPmaCourse },
               { id: "degree", label: "Degree", state: degree, setState: setDegree },
               { id: "phone_number", label: "Phone Number", state: phone_number, setState: setPhoneNumber },

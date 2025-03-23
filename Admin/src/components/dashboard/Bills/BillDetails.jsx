@@ -75,20 +75,20 @@ const BillDetails = () => {
       20,
       detailsYStart
     );
-    doc.text(
-      `Rank:              ${formData.rank || ""}`,
-      20,
-      detailsYStart + detailSpacing
-    );
-    doc.text(
-      `Name:              ${formData.name || ""}`,
-      20,
-      detailsYStart + detailSpacing * 2
-    );
+    // doc.text(
+    //   `Rank:              ${formData.rank || ""}`,
+    //   20,
+    //   detailsYStart + detailSpacing
+    // );
+    // doc.text(
+    //   `Name:              ${formData.name || ""}`,
+    //   20,
+    //   detailsYStart + detailSpacing * 2
+    // );
     doc.text(
       `Course:           ${formData.course || ""}`,
       20,
-      detailsYStart + detailSpacing * 3
+      detailsYStart + detailSpacing * 1.5
     );
 
     // Table properties
@@ -406,7 +406,7 @@ const BillDetails = () => {
             </thead>
             <tbody>
               {Object.entries(formData)
-                .filter(([key]) => key !== "id") // Exclude formData.id
+                .filter(([key]) => !["id", "rank", "name"].includes(key)) // Exclude id, rank, and name
                 .map(([key, value], index) => (
                   <tr
                     key={key}

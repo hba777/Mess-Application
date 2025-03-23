@@ -118,8 +118,9 @@ const Bills = () => {
             className="bg-white shadow-md rounded-lg p-4 cursor-pointer"
             onClick={() => handleCardClick(bill)}
           >
-            <h2 className="text-xl font-semibold text-gray-800">{bill.name}</h2>
-            <p className="text-gray-600">CMS ID: {bill.cms_id}</p>
+            {/* <h2 className="text-xl font-semibold text-gray-800">{bill.name}</h2> */}
+            <h2 className="text-xl font-semibold text-gray-800">CMS ID: {bill.cms_id}</h2>
+            {/* <p className="text-gray-600">CMS ID: {bill.cms_id}</p> */}
             <p className="text-gray-600">Total Amount: {bill.gtotal}</p>
           </div>
         ))}

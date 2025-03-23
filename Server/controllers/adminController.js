@@ -39,15 +39,14 @@ const getUsers = async (req, res) => {
   }
 };
 
-// Create User (Admin Only)
 const createUser = async (req, res) => {
   try {
     const {
       cms_id,
-      name,
+      name, // Optional
       password,
       department,
-      rank,
+      rank, // Optional
       pma_course,
       degree,
       phone_number,
@@ -57,19 +56,9 @@ const createUser = async (req, res) => {
     console.log("Request Body:", req.body);
 
     // Validate required fields
-    if (
-      !cms_id ||
-      !name ||
-      !password || // Ensure password is provided
-      !department ||
-      !rank ||
-      !pma_course ||
-      !degree ||
-      !phone_number
-    ) {
+    if (!cms_id || !password || !department || !pma_course || !degree || !phone_number) {
       return res.status(400).json({
-        message:
-          "All fields including password (except total_due) are required",
+        message: "All fields including password (except name, rank, and total_due) are required",
       });
     }
 
@@ -77,30 +66,33 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Build dynamic query with optional fields
+    const fields = ["cms_id", "password", "department", "pma_course", "degree", "phone_number", "total_due"];
+    const values = [cms_id, hashedPassword, department, pma_course, degree, phone_number, total_due];
+
+    if (name) {
+      fields.push("name");
+      values.push(name);
+    }
+
+    if (rank) {
+      fields.push("rank");
+      values.push(rank);
+    }
+
+    const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
+
+    const query = `INSERT INTO users (${fields.join(", ")}) VALUES (${placeholders}) RETURNING *`;
+
     // Insert new user into the database
-    const result = await queryDb(
-      `INSERT INTO users (cms_id, name, password, department, rank, pma_course, degree, phone_number, total_due) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [
-        cms_id,
-        name,
-        hashedPassword, // Store hashed password
-        department,
-        rank,
-        pma_course,
-        degree,
-        phone_number,
-        total_due,
-      ]
-    );
+    const result = await queryDb(query, values);
 
     if (!result || result.length === 0) {
       return res.status(500).json({ message: "User creation failed" });
     }
 
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: result[0] });
+    res.status(201).json({ message: "User created successfully", user: result[0] });
+
   } catch (err) {
     console.error("Error in createUser:", err);
 
@@ -109,11 +101,10 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: "CMS ID already exists" });
     }
 
-    res
-      .status(500)
-      .json({ message: "Error creating user", error: err.message });
+    res.status(500).json({ message: "Error creating user", error: err.message });
   }
 };
+
 
 // Update User (Admin Only)
 const updateUser = async (req, res) => {
