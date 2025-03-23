@@ -79,7 +79,7 @@ const createBill = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!cms_id || !course || !current_bill) {
+    if (!cms_id || !course) {
       return res.status(400).json({
         message: "CMS ID, Course, and Current Bill are required",
       });
