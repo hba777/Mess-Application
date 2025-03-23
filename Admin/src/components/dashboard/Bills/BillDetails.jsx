@@ -187,7 +187,7 @@ const BillDetails = () => {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 70;
+        verticaLine = 71;
         currentY = drawTableHeader(20);
       }
 
