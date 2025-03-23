@@ -168,10 +168,10 @@ const BillDetails = () => {
       { label: "Payamber Fund", value: formData.payamber },
       {
         label: "Student Societies Fund",
-        value: formData.student_societies_fund,
+        value: formData.student_societies_fund?.toString() ?? "0",
       },
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
-      //  { label: "Current Bill", value: formData.current_bill },
+       { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
       { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
@@ -187,7 +187,7 @@ const BillDetails = () => {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 65;
+        verticaLine = 70;
         currentY = drawTableHeader(20);
       }
 
