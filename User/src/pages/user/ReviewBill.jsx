@@ -25,9 +25,7 @@ function DetailComponent() {
       // !formData.rank ||
       // !formData.name ||
       !formData.course ||
-      !formData.receipt_no ||
-      !formData.current_bill ||
-      formData.current_bill === 0.0
+      !formData.receipt_no
     ) {
       console.error("Validation failed: Missing required fields");
       setErrorMessages((prev) => ({
