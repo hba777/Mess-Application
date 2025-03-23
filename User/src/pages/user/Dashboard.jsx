@@ -72,23 +72,31 @@ const UserBill = () => {
 
   return (
     <div className="p-6 bg-slate-800 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={handleGenerateBillNavigation}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
-        >
-          Generate Bill
-        </button>
-        <h1 className="text-2xl font-bold text-white">Your Bill Details</h1>
-        <button
-          onClick={handleLogout}
-          className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
-        >
-          Logout
-        </button>
+      <div className="p-6 bg-slate-800 min-h-screen flex flex-col items-center">
+        {/* Top Centered Heading */}
+        <h1 className="text-2xl font-bold text-white mb-12 mt-4">
+          Welcome User
+        </h1>
+
+        {/* Centered Buttons */}
+        <div className="flex justify-center items-center gap-x-6 flex-grow">
+          <button
+            onClick={handleGenerateBillNavigation}
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+          >
+            Generate Bill
+          </button>
+          <button
+            onClick={handleLogout}
+            className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {/* Personal Information */}
+
+      {/* <div className="bg-white p-6 rounded-lg shadow-md">
+        Personal Information
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -110,7 +118,7 @@ const UserBill = () => {
           </div>
         </div>
   
-        {/* Bill Breakdown */}
+        Bill Breakdown
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Bill Breakdown</h2>
           <div className="space-y-2">
@@ -118,7 +126,7 @@ const UserBill = () => {
               <p>Messing</p>
               <p>Rs: 5799</p>
             </div>
-            {/* Repeat similar blocks for other charges */}
+            Repeat similar blocks for other charges
           </div>
           <div className="mt-4 border-t pt-4">
             <p className="flex justify-between font-semibold">
@@ -136,13 +144,13 @@ const UserBill = () => {
           </div>
         </div>
   
-        {/* Payment Status */}
+        Payment Status
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Payment Status</h2>
           <p>Pending</p>
         </div>
   
-        {/* Upload Receipt */}
+        Upload Receipt
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Upload Receipt</h2>
           <div className="border-2 border-dashed border-gray-400 p-6 rounded-lg text-center cursor-pointer">
@@ -151,16 +159,15 @@ const UserBill = () => {
           </div>
         </div>
   
-        {/* Submit Button */}
+        Submit Button
         <button
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
         >
           Submit Receipt
         </button>
-      </div>
+      </div> */}
     </div>
   );
-  
 };
 
 export default UserBill;

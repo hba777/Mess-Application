@@ -178,7 +178,7 @@ const BillDetails = () => {
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
       //  { label: "Total Amount", value: formData.gTotal },
       { label: "Amount Received", value: formData.amount_received },
-      { label: "Balance Amount", value: formData.balamount },
+
     ];
 
     // Table content with page handling
@@ -187,7 +187,7 @@ const BillDetails = () => {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 65;
+        verticaLine = 59;
         currentY = drawTableHeader(20);
       }
 
@@ -211,11 +211,7 @@ const BillDetails = () => {
 
     // Totals section
     doc.setFont("helvetica", "bold");
-    doc.text("Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.current_bill || ""}`, verticalLineX + 20, currentY, {
-      align: "right",
-    });
-    currentY += rowHeight;
+    
     doc.text("Arrear:", tableXStart + 5, currentY);
     doc.text(`${formData.arrear || ""}`, verticalLineX + 20, currentY, {
       align: "right",
@@ -224,6 +220,12 @@ const BillDetails = () => {
     currentY += rowHeight;
     doc.text("G. Total:", tableXStart + 5, currentY);
     doc.text(`${formData.gtotal || ""}`, verticalLineX + 20, currentY, {
+      align: "right",
+    });
+    doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
+    currentY += rowHeight;
+    doc.text("Balance Amount:", tableXStart + 5, currentY);
+    doc.text(`${formData.balAmount || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
