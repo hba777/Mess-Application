@@ -167,7 +167,6 @@ const createBill = async (req, res) => {
   }
 };
 
-
 // Get all bills
 const getBills = async (req, res) => {
   try {
