@@ -171,24 +171,24 @@ function DetailComponent() {
     const detailSpacing = 6;
 
     doc.text(
-      `CMS ID:              ${formData.cms_id || ""}`,
+      `CMS ID: ${formData.cms_id || ""}`,
       20,
       detailsYStart
     );
-    // doc.text(
-    //   `Rank:              ${formData.rank || ""}`,
-    //   20,
-    //   detailsYStart + detailSpacing
-    // );
+    doc.text(
+      `1-Link ID: ${BILL_ID_LABEL || ""}`,
+      20,
+      detailsYStart + detailSpacing * 1.5
+    );
     // doc.text(
     //   `Name:              ${formData.name || ""}`,
     //   20,
     //   detailsYStart + detailSpacing * 2
     // );
     doc.text(
-      `Course:           ${formData.course || ""}`,
+      `Course: ${formData.course || ""}`,
       20,
-      detailsYStart + detailSpacing * 1.5
+      detailsYStart + detailSpacing * 3
     );
 
     // Table properties
@@ -273,7 +273,7 @@ function DetailComponent() {
       { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
        { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
-      { label: "1-Link Bill ID", value: BILL_ID_LABEL },
+      // { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
       //  { label: "Total Amount", value: formData.gTotal },
@@ -287,7 +287,7 @@ function DetailComponent() {
         doc.addPage();
         drawPageBorder();
         tableHeight = 120;
-        verticaLine = 71;
+        verticaLine = 65;
         currentY = drawTableHeader(20);
       }
 
