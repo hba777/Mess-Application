@@ -9,7 +9,6 @@ const {
   deleteUser,
 } = require("../controllers/adminController");
 
-const { getPendingAmounts } = require("../controllers/paymentController");
 
 const { authenticateJWT, isAdmin } = require("../middleware/authMiddleware");
 
@@ -30,8 +29,5 @@ router.put("/user/:cms_id", isAdmin, updateUser);
 
 // Delete User (Admin Only)
 router.delete("/user/:cms_id", isAdmin, deleteUser);
-
-// Get Pending Amounts (All or Specific CMS ID) (Admin Only)
-router.get("/pending-amounts/:cms_id?", isAdmin, getPendingAmounts);
 
 module.exports = router;

@@ -9,6 +9,9 @@ const {
   updateBill,
   deleteBill,
 } = require("../controllers/userController");
+
+const { getPendingAmounts } = require("../controllers/paymentController");
+
 const { authenticateJWT } = require("../middleware/authMiddleware");
 
 // User Login Route (No Token Needed)
@@ -31,5 +34,8 @@ router.put("/bill/:id", updateBill);
 
 // 🔹 Delete Bill (User-specific access)
 router.delete("/bill/:id", deleteBill);
+
+// Get Pending Amounts (All or Specific CMS ID) (Admin Only)
+router.get("/pending-amounts/:cms_id?", getPendingAmounts);
 
 module.exports = router;
