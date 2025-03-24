@@ -41,22 +41,44 @@ const getUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { cms_id, password, phone_number } = req.body;
+    const { cms_id, password, phone_number, is_clerk } = req.body;
 
     // Validate required fields
-    if (!cms_id || !password || !phone_number) {
+    if (!cms_id || !phone_number) {
       return res.status(400).json({
-        message: "cms_id, password, and phone_number are required",
+        message: "cms_id and phone_number are required",
       });
     }
 
-    // Hash the password before storing it in the database
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const isClerk = Boolean(is_clerk); // Ensure boolean type
 
-    // Prepare query to insert user with cms_id, password, and phone_number
-    const query = `INSERT INTO users (cms_id, password, phone_number) VALUES ($1, $2, $3) RETURNING cms_id, phone_number`;
-    const values = [cms_id, hashedPassword, phone_number];
+    // If is_clerk is true, password is required
+    if (isClerk && !password) {
+      return res.status(400).json({
+        message: "Password is required for clerks",
+      });
+    }
+
+    let hashedPassword = null;
+
+    // Hash password only if provided
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(password, salt);
+    }
+
+    // Ensure password is null for non-clerks to satisfy the CHECK constraint
+    if (!isClerk) {
+      hashedPassword = null;
+    }
+
+    // Prepare query to insert user
+    const query = `
+      INSERT INTO users (cms_id, password, phone_number, is_clerk) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING cms_id, phone_number, is_clerk
+    `;
+    const values = [cms_id, hashedPassword, phone_number, isClerk];
 
     // Insert new user into the database
     const result = await queryDb(query, values);
@@ -67,7 +89,7 @@ const createUser = async (req, res) => {
 
     res.status(201).json({
       message: "User created successfully",
-      user: result[0],
+      user: result[0], // Access first row explicitly
     });
   } catch (err) {
     console.error("Error in createUser:", err);

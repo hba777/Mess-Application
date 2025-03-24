@@ -12,7 +12,8 @@ VALUES ('admin', 'adminpassword');
 CREATE TABLE users (
     cms_id INT PRIMARY KEY,         -- Unique identifier for each user
     password VARCHAR(255) NOT NULL, -- User password (hashed for security)
-    phone_number VARCHAR(20)        -- Contact number
+    phone_number VARCHAR(20),       -- Contact number
+	transaction_id TEXT UNIQUE
 )
 
 -- bill 
