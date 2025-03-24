@@ -68,50 +68,78 @@ const Bills = () => {
     { label: "Balance Amount", key: "balamount" },
   ];
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     const currentMonth = new Date().toLocaleString("default", {
       month: "long",
       year: "numeric",
     });
   
-    const BILL_ID_VALUE = process.env.REACT_APP_BILL_ID_VALUE || "123456789"; // Replace with actual ID
+    const authToken = localStorage.getItem("authToken");
+    const BILL_ID_VALUE = process.env.REACT_APP_BILL_ID_VALUE || "123456789"; // Default fallback
   
-    const data = bills.map((bill, index) => {
-      let formattedBill = { SerNo: index + 1, "User ID": bill.cms_id || "" }; // User ID as the first column
+    try {
+      // Fetch user details
+      const response = await fetch("http://localhost:5000/api/admin/users", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const users = await response.json(); // Expecting an array of user objects
   
-      billItems.forEach(({ label, key }) => {
-        if (key !== "BILL_ID_LABEL") {
-          formattedBill[label] = bill[key] || "";
-        }
+      // Create a user lookup by cms_id
+      const userLookup = {};
+      users.forEach((user) => {
+        userLookup[user.cms_id] = {
+          phone_number: user.phone_number || "",
+          link_id: user.link_id || BILL_ID_VALUE, // Use API link_id, fallback to BILL_ID_VALUE
+        };
       });
   
-      formattedBill["1LINK Bill ID"] = BILL_ID_VALUE; // 1-Link Bill ID as the last column
+      // Format data for Excel
+      const data = bills.map((bill, index) => {
+        const userData = userLookup[bill.cms_id] || {}; // Get user details or empty object
   
-      return formattedBill;
-    });
+        let formattedBill = {
+          SerNo: index + 1,
+          "User ID": bill.cms_id || "",
+          "Phone Number": userData.phone_number || "",
+          "G.Total": bill.gtotal || "",
+          "1LINK Bill ID": userData.link_id, // Use matched user's link_id
+        };
   
-    const worksheet = XLSX.utils.json_to_sheet([{}]);
+        // Maintain the rest of the entries
+        billItems.forEach(({ label, key }) => {
+          if (!["BILL_ID_LABEL", "cms_id", "gtotal"].includes(key)) {
+            formattedBill[label] = bill[key] || "";
+          }
+        });
   
-    // Add title row
-    XLSX.utils.sheet_add_aoa(worksheet, [[`Bills for ${currentMonth}`]], {
-      origin: "A1",
-    });
+        return formattedBill;
+      });
   
-    // Merge title row across columns
-    worksheet["!merges"] = [
-      {
-        s: { r: 0, c: 0 },
-        e: { r: 0, c: Object.keys(data[0] || {}).length },
-      },
-    ];
+      const worksheet = XLSX.utils.json_to_sheet([{}]);
   
-    // Add the data starting from row 3
-    XLSX.utils.sheet_add_json(worksheet, data, { origin: "A3", skipHeader: false });
+      // Add title row
+      XLSX.utils.sheet_add_aoa(worksheet, [[`Bills for ${currentMonth}`]], {
+        origin: "A1",
+      });
   
-    // Create and save the workbook
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Bills");
-    XLSX.writeFile(workbook, `${currentMonth} Bill.xlsx`);
+      // Merge title row across columns
+      worksheet["!merges"] = [
+        {
+          s: { r: 0, c: 0 },
+          e: { r: 0, c: Object.keys(data[0] || {}).length },
+        },
+      ];
+  
+      // Add data starting from row 3
+      XLSX.utils.sheet_add_json(worksheet, data, { origin: "A3", skipHeader: false });
+  
+      // Create and save the workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Bills");
+      XLSX.writeFile(workbook, `${currentMonth} Bill.xlsx`);
+    } catch (error) {
+      console.error("Error exporting Excel file:", error);
+    }
   };
   
 

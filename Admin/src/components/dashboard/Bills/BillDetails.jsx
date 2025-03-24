@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../../assets/AppLogo.jpg";
@@ -18,6 +18,40 @@ const BillDetails = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
   const [isBillPaid, setIsBillPaid] = useState(false);
+
+  //Check Paid Status
+  useEffect(() => {
+    const checkPaymentStatus = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken"); // Get token from localStorage
+  
+        if (!authToken) {
+          console.error("No auth token found.");
+          return;
+        }
+  
+        const response = await axios.get("http://localhost:5000/api/pay/bill-payments", {
+          headers: {
+            Authorization: `Bearer ${authToken}`, // Attach token to request
+          },
+        });
+  
+        if (response.status === 200 && Array.isArray(response.data)) {
+          const isPaid = response.data.some(
+            (payment) => payment.receipt_number === formData.receipt_no
+          );
+  
+          if (isPaid) {
+            setIsBillPaid(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching payment status:", error);
+      }
+    };
+  
+    checkPaymentStatus();
+  }, []); // Empty dependency array ensures it runs only once on mount
 
   const [paymentDetails] = useState({
     transaction_id: uuidv4(),
@@ -69,15 +103,11 @@ const BillDetails = () => {
     const detailsYStart = 75;
     const detailSpacing = 6;
 
-    doc.text(
-      `User ID: ${formData.cms_id || ""}`,
-      20,
-      detailsYStart 
-    );
+    doc.text(`User ID: ${formData.cms_id || ""}`, 20, detailsYStart);
     doc.text(
       `1LINK ID: ${BILL_ID_LABEL || ""}`,
       20,
-      detailsYStart + detailSpacing 
+      detailsYStart + detailSpacing
     );
     // doc.text(
     //   `Name:              ${formData.name || ""}`,
@@ -254,7 +284,6 @@ const BillDetails = () => {
       tableXStart + 5,
       currentY + 12
     );
-    
 
     // Save PDF
     doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
@@ -402,7 +431,9 @@ const BillDetails = () => {
                     className={index % 2 === 0 ? "bg-gray-800" : ""}
                   >
                     <td className="py-2 px-4 border-b border-gray-700">
-                      {key.replace(/_/g, " ").toUpperCase()}
+                      {key === "dinner_ni_jscmcc_69"
+                        ? "Dinner Night"
+                        : key.replace(/_/g, " ").toUpperCase()}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-700 text-right">
                       {typeof value === "number" ? value.toFixed(2) : value}
