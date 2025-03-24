@@ -20,8 +20,7 @@ CREATE TABLE users (
     )
 );
 
-
--- bill 
+-- bill table
 CREATE TABLE bill (
     id SERIAL PRIMARY KEY,
     cms_id INT NOT NULL,  -- Foreign key referencing users.cms_id
@@ -64,20 +63,23 @@ CREATE TABLE bill (
     receipt_no TEXT,
     amount_received NUMERIC(10,2),
     gTotal NUMERIC(10,2) DEFAULT 0,
-    balAmount NUMERIC(10,2) DEFAULT 0;
+    balAmount NUMERIC(10,2) DEFAULT 0,
+    FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
 );
 
+-- bill_payment table
 CREATE TABLE bill_payment (
     id SERIAL PRIMARY KEY,
     bill_id INT NOT NULL,  -- Foreign key referencing bill.id
     transaction_id TEXT UNIQUE NOT NULL,  -- Unique transaction identifier
-    payer_cms_id INT NOT NULL,  -- User ID of the payer
+    payer_cms_id INT,  -- User ID of the payer (nullable for deleted users)
     payment_amount NUMERIC(10,2) NOT NULL,  -- Amount paid
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of payment
     payment_method TEXT,  -- Method of payment (e.g., Bank Transfer, Cash)
     receipt_number TEXT,  -- Receipt number for reference
     status TEXT DEFAULT 'Pending',  -- Status of payment (Pending, Completed, Failed)
-    FOREIGN KEY (bill_id) REFERENCES bill(id) ON DELETE CASCADE
+    FOREIGN KEY (bill_id) REFERENCES bill(id) ON DELETE CASCADE,
+    FOREIGN KEY (payer_cms_id) REFERENCES users(cms_id) ON DELETE SET NULL
 );
 
 -- This procedure will sum the total bill amount (gTotal) 
@@ -97,3 +99,45 @@ BEGIN
     GROUP BY b.cms_id;
 END;
 $$;
+
+-- KPIs
+CREATE OR REPLACE FUNCTION get_total_users()
+RETURNS INT LANGUAGE plpgsql AS $$
+DECLARE 
+    total_users INT;
+BEGIN
+    SELECT COUNT(*) INTO total_users FROM users;
+    RETURN total_users;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_pending_bills()
+RETURNS NUMERIC(10,2) LANGUAGE plpgsql AS $$
+DECLARE 
+    total_pending NUMERIC(10,2);
+BEGIN
+    SELECT COALESCE(SUM(balAmount), 0) INTO total_pending FROM bill WHERE balAmount > 0;
+    RETURN total_pending;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_paid_bills()
+RETURNS NUMERIC(10,2) LANGUAGE plpgsql AS $$
+DECLARE 
+    total_paid NUMERIC(10,2);
+BEGIN
+    SELECT COALESCE(SUM(amount_received), 0) INTO total_paid FROM bill WHERE amount_received > 0;
+    RETURN total_paid;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_users_who_paid()
+RETURNS INT LANGUAGE plpgsql AS $$
+DECLARE 
+    total_users_paid INT;
+BEGIN
+    SELECT COUNT(DISTINCT cms_id) INTO total_users_paid FROM bill WHERE amount_received > 0;
+    RETURN total_users_paid;
+END;
+$$;
+

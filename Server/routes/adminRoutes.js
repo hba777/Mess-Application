@@ -7,8 +7,11 @@ const {
   createUser,
   updateUser,
   deleteUser,
+  getTotalUsers,
+  getTotalPendingBills,
+  getTotalPaidBills,
+  getTotalUsersWhoPaid,
 } = require("../controllers/adminController");
-
 
 const { authenticateJWT, isAdmin } = require("../middleware/authMiddleware");
 
@@ -29,5 +32,11 @@ router.put("/user/:cms_id", isAdmin, updateUser);
 
 // Delete User (Admin Only)
 router.delete("/user/:cms_id", isAdmin, deleteUser);
+
+// KPIs (Admin Only)
+router.get("/total-users", getTotalUsers);
+router.get("/total-pending-bills", getTotalPendingBills);
+router.get("/total-paid-bills", getTotalPaidBills);
+router.get("/total-users-who-paid", getTotalUsersWhoPaid);
 
 module.exports = router;
