@@ -167,11 +167,7 @@ function DetailComponent() {
     const detailsYStart = 70;
     const detailSpacing = 6;
 
-    doc.text(
-      `User ID: ${formData.cms_id || ""}`,
-      20,
-      detailsYStart
-    );
+    doc.text(`User ID: ${formData.cms_id || ""}`, 20, detailsYStart);
     doc.text(
       `1LINK ID: ${BILL_ID_LABEL || ""}`,
       20,
@@ -268,7 +264,7 @@ function DetailComponent() {
         value: formData.student_societies_fund?.toString() ?? "0",
       },
       { label: "Dinner Night", value: formData.dinner_ni_jscmcc_69 },
-       { label: "Current Bill", value: formData.current_bill },
+      { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
       // { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
@@ -352,7 +348,7 @@ function DetailComponent() {
       tableXStart + 5,
       currentY + 12
     );
-    
+
     // Save PDF
     doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
   };
@@ -379,15 +375,11 @@ function DetailComponent() {
           </h3>
           <div className="grid grid-cols-2 gap-4">
             {[
-              "cms_id",
-              //  "rank",
-              //   "name",
-              "course",
-            ].map((key) => (
+              { key: "cms_id", label: "User ID" },
+              { key: "course", label: "Course" },
+            ].map(({ key, label }) => (
               <div key={key} className="flex justify-between">
-                <span className="font-medium">
-                  {key.replace(/_/g, " ").toUpperCase()}:
-                </span>
+                <span className="font-medium">{label}:</span>
                 <span className="text-gray-300">{formData[key]}</span>
               </div>
             ))}

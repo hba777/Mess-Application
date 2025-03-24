@@ -286,11 +286,14 @@ const MessBillEntry = () => {
         {Object.keys(formData).map((key) => (
           <div key={key} className="flex flex-col">
             <label htmlFor={key} className="font-semibold text-gray-300 mb-1">
-              {key
-                .replace(/([a-z])([A-Z])/g, "$1 $2")
-                .replace(/\b\w/g, (char) => char.toUpperCase())}
+              {key === "cms_id"
+                ? "User ID"
+                : key
+                    .replace(/([a-z])([A-Z])/g, "$1 $2")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
               :
             </label>
+
             <input
               type={
                 key === "receipt_no" ||

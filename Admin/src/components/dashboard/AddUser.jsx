@@ -3,29 +3,22 @@ import axios from "axios";
 
 export default function AddUser() {
   const [cms_id, setCmsId] = useState("");
-  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [department, setDepartment] = useState("");
-  const [rank, setRank] = useState("");
-  const [pma_course, setPmaCourse] = useState("");
-  const [degree, setDegree] = useState("");
   const [phone_number, setPhoneNumber] = useState("");
+  const [link_id, setLinkId] = useState("");
+  const [is_clerk, setIsClerk] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   // Validate Form Before Submission
   const validateForm = () => {
-    if (
-      !cms_id.trim() ||
-      // !name.trim() ||
-      !password.trim() ||
-      // !department.trim() ||
-      // !rank.trim() ||
-      // !pma_course.trim() ||
-      // !degree.trim() ||
-      !phone_number.trim()
-    ) {
-      setMessage("All fields are required.");
+    if (!cms_id.trim() || !phone_number.trim()) {
+      setMessage("CMS ID and Phone Number are required.");
+      return false;
+    }
+
+    if (is_clerk && !password.trim()) {
+      setMessage("Password is required for clerks.");
       return false;
     }
 
@@ -42,7 +35,7 @@ export default function AddUser() {
     e.preventDefault();
     setMessage("");
 
-    if (!validateForm()) return; // Stop if validation fails
+    if (!validateForm()) return;
 
     setLoading(true);
 
@@ -52,14 +45,10 @@ export default function AddUser() {
         "http://localhost:5000/api/admin/user",
         {
           cms_id,
-          //name,
-          password,
-          // department,
-          //rank,
-          // pma_course,
-          // degree,
+          password: is_clerk ? password : null,
           phone_number,
-          total_due: 0,
+          link_id,
+          is_clerk,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -69,13 +58,10 @@ export default function AddUser() {
       if (response.status === 201) {
         setMessage("User added successfully!");
         setCmsId("");
-        setName("");
         setPassword("");
-        setDepartment("");
-        setRank("");
-        setPmaCourse("");
-        setDegree("");
         setPhoneNumber("");
+        setLinkId("");
+        setIsClerk(false);
       } else {
         setMessage("Failed to add user");
       }
@@ -104,13 +90,8 @@ export default function AddUser() {
           <form onSubmit={handleSubmit} className="w-full max-w-md">
             {[ 
               { id: "cms_id", label: "User ID", state: cms_id, setState: setCmsId },
-              //{ id: "name", label: "Name", state: name, setState: setName },
-              { id: "password", label: "Password", state: password, setState: setPassword, type: "password" },
-              // { id: "department", label: "Department", state: department, setState: setDepartment },
-              //{ id: "rank", label: "Rank", state: rank, setState: setRank },
-              // { id: "pma_course", label: "PMA Course", state: pma_course, setState: setPmaCourse },
-              // { id: "degree", label: "Degree", state: degree, setState: setDegree },
               { id: "phone_number", label: "Phone Number", state: phone_number, setState: setPhoneNumber },
+              { id: "link_id", label: "Link ID", state: link_id, setState: setLinkId },
             ].map((field) => (
               <div key={field.id} className="mb-4 w-full">
                 <label htmlFor={field.id} className="block text-gray-700">
@@ -118,7 +99,7 @@ export default function AddUser() {
                 </label>
                 <input
                   id={field.id}
-                  type={field.type || "text"}
+                  type="text"
                   value={field.state}
                   onChange={(e) => field.setState(e.target.value)}
                   required
@@ -126,6 +107,31 @@ export default function AddUser() {
                 />
               </div>
             ))}
+            <div className="mb-4 w-full flex items-center">
+              <input
+                id="is_clerk"
+                type="checkbox"
+                checked={is_clerk}
+                onChange={(e) => setIsClerk(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="is_clerk" className="text-gray-700">Clerk</label>
+            </div>
+            {is_clerk && (
+              <div className="mb-4 w-full">
+                <label htmlFor="password" className="block text-gray-700">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required={is_clerk}
+                  className="w-full mt-1 border border-gray-400 p-2 rounded bg-slate-100"
+                />
+              </div>
+            )}
             <div className="mt-2 flex flex-wrap gap-2 sm:gap-4 justify-center">
               <button
                 type="submit"
