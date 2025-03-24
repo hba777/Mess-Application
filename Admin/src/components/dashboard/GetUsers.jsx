@@ -52,7 +52,7 @@ const GetUsers = () => {
             className="bg-white shadow-md rounded-lg p-4"
           >
             <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-            <p className="text-gray-600">CMS ID: {user.cms_id}</p>
+            <p className="text-gray-600">User ID: {user.cms_id}</p>
           </div>
         ))}
       </div>

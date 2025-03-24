@@ -11,7 +11,7 @@ const loginUser = async (req, res) => {
     ]);
 
     if (!result || result.length === 0) {
-      return res.status(401).json({ message: "Invalid CMS ID or password" });
+      return res.status(401).json({ message: "Invalid User ID or password" });
     }
 
     const user = result[0];
@@ -19,7 +19,7 @@ const loginUser = async (req, res) => {
     // Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid CMS ID or password" });
+      return res.status(401).json({ message: "Invalid User ID or password" });
     }
 
     const token = generateToken(user); // Generate JWT
@@ -81,7 +81,7 @@ const createBill = async (req, res) => {
     // Validate required fields
     if (!cms_id || !course) {
       return res.status(400).json({
-        message: "CMS ID, Course, and Current Bill are required",
+        message: "User ID, Course, and Current Bill are required",
       });
     }
 
@@ -158,7 +158,7 @@ const createBill = async (req, res) => {
     if (err.code === "23505") {
       return res
         .status(400)
-        .json({ message: "Bill with this CMS ID already exists" });
+        .json({ message: "Bill with this User ID already exists" });
     }
 
     res

@@ -42,7 +42,7 @@ const PaidBills = () => {
       <h1 className="text-2xl font-bold mb-4 text-white">Paid Bills</h1>
       <input
         type="text"
-        placeholder="Search by CMS ID"
+        placeholder="Search by User ID"
         className="mb-4 p-2 border border-gray-300 rounded"
         onChange={e => setSearchTerm(e.target.value)}
       />
@@ -54,7 +54,7 @@ const PaidBills = () => {
             onClick={() => handleCardClick(bill)}
           >
             <h2 className="text-xl font-semibold text-gray-800">Receipt No: {bill.receipt_number}</h2>
-            <p className="text-gray-600">Payer CMS ID: {bill.payer_cms_id}</p>
+            <p className="text-gray-600">Payer User ID: {bill.payer_cms_id}</p>
             <p className="text-gray-600">Payment Amount: {bill.payment_amount}</p>
           </div>
         ))}

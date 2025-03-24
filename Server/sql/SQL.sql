@@ -65,13 +65,14 @@ CREATE TABLE bill (
     amount_received NUMERIC(10,2),
     gTotal NUMERIC(10,2) DEFAULT 0,
     balAmount NUMERIC(10,2) DEFAULT 0;
+    
 );
 
 CREATE TABLE bill_payment (
     id SERIAL PRIMARY KEY,
     bill_id INT NOT NULL,  -- Foreign key referencing bill.id
     transaction_id TEXT UNIQUE NOT NULL,  -- Unique transaction identifier
-    payer_cms_id INT NOT NULL,  -- CMS ID of the payer
+    payer_cms_id INT NOT NULL,  -- User ID of the payer
     payment_amount NUMERIC(10,2) NOT NULL,  -- Amount paid
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of payment
     payment_method TEXT,  -- Method of payment (e.g., Bank Transfer, Cash)

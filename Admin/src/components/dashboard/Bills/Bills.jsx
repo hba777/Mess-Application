@@ -62,8 +62,8 @@ const Bills = () => {
     { label: "Dine Out", key: "dine_out" },
     { label: "Payamber Fund", key: "payamber" },
     { label: "Student Societies Fund", key: "student_societies_fund" },
-    { label: "Dinner (NI/JSCMCC-69)", key: "dinner_ni_jscmcc_69" },
-    { label: "1-Link Bill ID", key: "BILL_ID_LABEL" },
+    { label: "Dinner Night", key: "dinner_ni_jscmcc_69" },
+    { label: "1LINK Bill ID", key: "BILL_ID_LABEL" },
     { label: "Amount Received", key: "amount_received" },
     { label: "Balance Amount", key: "balamount" },
   ];
@@ -77,7 +77,7 @@ const Bills = () => {
     const BILL_ID_VALUE = process.env.REACT_APP_BILL_ID_VALUE || "123456789"; // Replace with actual ID
   
     const data = bills.map((bill, index) => {
-      let formattedBill = { SerNo: index + 1, "CMS ID": bill.cms_id || "" }; // CMS ID as the first column
+      let formattedBill = { SerNo: index + 1, "User ID": bill.cms_id || "" }; // User ID as the first column
   
       billItems.forEach(({ label, key }) => {
         if (key !== "BILL_ID_LABEL") {
@@ -85,7 +85,7 @@ const Bills = () => {
         }
       });
   
-      formattedBill["1-Link Bill ID"] = BILL_ID_VALUE; // 1-Link Bill ID as the last column
+      formattedBill["1LINK Bill ID"] = BILL_ID_VALUE; // 1-Link Bill ID as the last column
   
       return formattedBill;
     });
@@ -127,7 +127,7 @@ const Bills = () => {
       <div className="flex mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by CMS ID"
+          placeholder="Search by User ID"
           className="p-2 border border-gray-300 rounded"
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -146,8 +146,8 @@ const Bills = () => {
             onClick={() => handleCardClick(bill)}
           >
             {/* <h2 className="text-xl font-semibold text-gray-800">{bill.name}</h2> */}
-            <h2 className="text-xl font-semibold text-gray-800">CMS ID:{bill.cms_id}</h2>
-            {/* <p className="text-gray-600">CMS ID: {bill.cms_id}</p> */}
+            <h2 className="text-xl font-semibold text-gray-800">User ID:{bill.cms_id}</h2>
+            {/* <p className="text-gray-600">User ID: {bill.cms_id}</p> */}
             <p className="text-gray-600">Total Amount: {bill.gtotal}</p>
           </div>
         ))}

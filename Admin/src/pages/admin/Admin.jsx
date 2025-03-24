@@ -18,7 +18,7 @@ export default function Admin() {
       <div className="flex flex-col flex-grow ">
         <div className="flex justify-between items-center border-2 border-slate-500 p-3 bg-slate-200">
           <DateComponent />
-          <p className="font-semibold font-mono text-sm sm:text-base lg:text-lg">Admin Name</p>
+          <p className="font-semibold font-mono text-sm sm:text-base lg:text-lg">Admin</p>
         </div>
         <Routes>
           <Route path="/" element={<Summary />} />

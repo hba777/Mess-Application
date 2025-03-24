@@ -19,10 +19,10 @@ export default function AddUser() {
       !cms_id.trim() ||
       // !name.trim() ||
       !password.trim() ||
-      !department.trim() ||
+      // !department.trim() ||
       // !rank.trim() ||
-      !pma_course.trim() ||
-      !degree.trim() ||
+      // !pma_course.trim() ||
+      // !degree.trim() ||
       !phone_number.trim()
     ) {
       setMessage("All fields are required.");
@@ -54,10 +54,10 @@ export default function AddUser() {
           cms_id,
           //name,
           password,
-          department,
+          // department,
           //rank,
-          pma_course,
-          degree,
+          // pma_course,
+          // degree,
           phone_number,
           total_due: 0,
         },
@@ -103,13 +103,13 @@ export default function AddUser() {
         <div className="bg-slate-200 p-4 rounded-lg shadow-md flex flex-col items-center">
           <form onSubmit={handleSubmit} className="w-full max-w-md">
             {[ 
-              { id: "cms_id", label: "CMS ID", state: cms_id, setState: setCmsId },
+              { id: "cms_id", label: "User ID", state: cms_id, setState: setCmsId },
               //{ id: "name", label: "Name", state: name, setState: setName },
               { id: "password", label: "Password", state: password, setState: setPassword, type: "password" },
-              { id: "department", label: "Department", state: department, setState: setDepartment },
+              // { id: "department", label: "Department", state: department, setState: setDepartment },
               //{ id: "rank", label: "Rank", state: rank, setState: setRank },
-              { id: "pma_course", label: "PMA Course", state: pma_course, setState: setPmaCourse },
-              { id: "degree", label: "Degree", state: degree, setState: setDegree },
+              // { id: "pma_course", label: "PMA Course", state: pma_course, setState: setPmaCourse },
+              // { id: "degree", label: "Degree", state: degree, setState: setDegree },
               { id: "phone_number", label: "Phone Number", state: phone_number, setState: setPhoneNumber },
             ].map((field) => (
               <div key={field.id} className="mb-4 w-full">

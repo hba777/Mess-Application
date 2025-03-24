@@ -45,7 +45,7 @@ export default function AddAdmin() {
         <div className="bg-slate-200 p-4 rounded-lg shadow-md flex flex-col items-center">
           <form onSubmit={handleSubmit} className="w-full max-w-md">
             <div className="mb-4 w-full">
-              <label htmlFor="cmsid" className="block text-gray-700">CMS ID</label>
+              <label htmlFor="cmsid" className="block text-gray-700">User ID</label>
               <input
                 id="cmsid"
                 type="text"

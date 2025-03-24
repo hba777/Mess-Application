@@ -153,7 +153,6 @@ function DetailComponent() {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 8); // 8th of next month
     const formattedDate = nextMonth.toLocaleDateString("en-GB", {
-      day: "numeric",
       month: "short",
       year: "numeric",
     });
@@ -169,12 +168,12 @@ function DetailComponent() {
     const detailSpacing = 6;
 
     doc.text(
-      `CMS ID: ${formData.cms_id || ""}`,
+      `User ID: ${formData.cms_id || ""}`,
       20,
       detailsYStart
     );
     doc.text(
-      `1-Link ID: ${BILL_ID_LABEL || ""}`,
+      `1LINK ID: ${BILL_ID_LABEL || ""}`,
       20,
       detailsYStart + detailSpacing * 1.5
     );
@@ -268,7 +267,7 @@ function DetailComponent() {
         label: "Student Societies Fund",
         value: formData.student_societies_fund?.toString() ?? "0",
       },
-      { label: "Dinner (NI/JSCMCC-69)", value: formData.dinner_ni_jscmcc_69 },
+      { label: "Dinner Night", value: formData.dinner_ni_jscmcc_69 },
        { label: "Current Bill", value: formData.current_bill },
       //  { label: "Arrears", value: formData.arrear },
       // { label: "1-Link Bill ID", value: BILL_ID_LABEL },
@@ -330,42 +329,30 @@ function DetailComponent() {
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
 
     // Footer notes
-    currentY += 10;
     doc.setFont("helvetica", "normal");
-    doc.text("Maj", pageWidth - 40, currentY, { align: "right" });
-    doc.text("Mess Secy", pageWidth - 40, currentY + 4, { align: "right" });
     currentY += 12;
     doc.text(
-      "1. Bill to be paid before 8th of each month in cash.",
+      "1. Bill to be paid before 8th of each month in cash/1LINK.",
       tableXStart + 5,
       currentY
     );
     doc.text(
-      "2. Query if any will be reported within three days after receipt of this bill.",
+      "2. This is a computerized bill and does not require a signature",
       tableXStart + 5,
       currentY + 4
     );
+
     doc.text(
-      "3. This is a computerized bill and does not require a signature",
+      "3. Queries, if any, should be reported to the Mess Secretary within two days of receipt of this bill.",
       tableXStart + 5,
       currentY + 8
     );
     doc.text(
-      "4. Queries, if any, should be reported to the Mess Secretary within two days of receipt of this bill.",
+      "4. No queries will be entertained after the two-day period.",
       tableXStart + 5,
       currentY + 12
     );
-    doc.text(
-      "5. No queries will be entertained after the two-day period.",
-      tableXStart + 5,
-      currentY + 16
-    );
-    doc.text(
-      "6. All outstation cheques should include bank commission at the current rate.",
-      tableXStart + 5,
-      currentY + 20
-    );
-
+    
     // Save PDF
     doc.save(`CID ${formData.cms_id} Mess_Bill.pdf`);
   };

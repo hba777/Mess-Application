@@ -12,7 +12,7 @@ const loginAdmin = async (req, res) => {
     ]);
 
     if (!result || result.length === 0 || result[0].password !== password) {
-      return res.status(401).json({ message: "Invalid CMS ID or password" });
+      return res.status(401).json({ message: "Invalid User ID or password" });
     }
 
     const admin = result[0];
@@ -56,7 +56,7 @@ const createUser = async (req, res) => {
     console.log("Request Body:", req.body);
 
     // Validate required fields
-    if (!cms_id || !password || !department || !pma_course || !degree || !phone_number) {
+    if (!cms_id || !password  || !phone_number) {
       return res.status(400).json({
         message: "All fields including password (except name, rank, and total_due) are required",
       });
@@ -98,7 +98,7 @@ const createUser = async (req, res) => {
 
     // Handle unique constraint violation (PostgreSQL error code 23505)
     if (err.code === "23505") {
-      return res.status(400).json({ message: "CMS ID already exists" });
+      return res.status(400).json({ message: "User ID already exists" });
     }
 
     res.status(500).json({ message: "Error creating user", error: err.message });

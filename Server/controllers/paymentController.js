@@ -130,7 +130,7 @@ const deleteBillPayment = async (req, res) => {
   }
 };
 
-// 🔹 Get Pending Amounts (All or Specific CMS ID)
+// 🔹 Get Pending Amounts (All or Specific User ID)
 const getPendingAmounts = async (req, res) => {
   const { cms_id } = req.params;
 

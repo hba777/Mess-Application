@@ -35,7 +35,7 @@ router.put("/bill/:id", updateBill);
 // 🔹 Delete Bill (User-specific access)
 router.delete("/bill/:id", deleteBill);
 
-// Get Pending Amounts (All or Specific CMS ID) (Admin Only)
+// Get Pending Amounts (All or Specific User ID) (Admin Only)
 router.get("/pending-amounts/:cms_id?", getPendingAmounts);
 
 module.exports = router;

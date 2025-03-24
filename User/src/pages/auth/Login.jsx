@@ -17,7 +17,7 @@ const LoginPage = () => {
     setError("");
     try {
       if (!cmsId.trim()) {
-        setError("Please enter your CMS ID.");
+        setError("Please enter your User ID.");
         setIsLoading(false);
         return;
       }
@@ -70,7 +70,7 @@ const LoginPage = () => {
           >
             <div className="mb-4">
               <label htmlFor="cmsId" className="block text-gray-300 font-bold mb-2">
-                CMS ID
+                User ID
               </label>
               <input
                 type="text"
@@ -78,7 +78,7 @@ const LoginPage = () => {
                 value={cmsId}
                 onChange={(e) => setCmsId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-500 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter your CMS ID"
+                placeholder="Enter your User ID"
               />
             </div>
             <div className="mb-4 relative">
