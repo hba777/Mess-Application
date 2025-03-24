@@ -41,7 +41,7 @@ const getUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { cms_id, password, phone_number, is_clerk } = req.body;
+    const { cms_id, password, phone_number, link_id, is_clerk } = req.body;
 
     // Validate required fields
     if (!cms_id || !phone_number) {
@@ -74,11 +74,11 @@ const createUser = async (req, res) => {
 
     // Prepare query to insert user
     const query = `
-      INSERT INTO users (cms_id, password, phone_number, is_clerk) 
-      VALUES ($1, $2, $3, $4) 
-      RETURNING cms_id, phone_number, is_clerk
+      INSERT INTO users (cms_id, password, phone_number, link_id, is_clerk) 
+      VALUES ($1, $2, $3, $4, $5) 
+      RETURNING cms_id, phone_number, link_id, is_clerk
     `;
-    const values = [cms_id, hashedPassword, phone_number, isClerk];
+    const values = [cms_id, hashedPassword, phone_number, link_id, isClerk];
 
     // Insert new user into the database
     const result = await queryDb(query, values);
@@ -87,16 +87,17 @@ const createUser = async (req, res) => {
       return res.status(500).json({ message: "User creation failed" });
     }
 
-    res.status(201).json({
-      message: "User created successfully",
-      user: result[0], // Access first row explicitly
-    });
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: result[0] });
   } catch (err) {
     console.error("Error in createUser:", err);
 
     // Handle unique constraint violation (PostgreSQL error code 23505)
     if (err.code === "23505") {
-      return res.status(400).json({ message: "User ID already exists" });
+      return res
+        .status(400)
+        .json({ message: "CMS ID or Link ID already exists" });
     }
 
     res

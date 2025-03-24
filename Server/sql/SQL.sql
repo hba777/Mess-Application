@@ -11,10 +11,15 @@ VALUES ('admin', 'adminpassword');
 -- users
 CREATE TABLE users (
     cms_id INT PRIMARY KEY,         -- Unique identifier for each user
-    password VARCHAR(255) NOT NULL, -- User password (hashed for security)
+    password VARCHAR(255),          -- User password (hashed for security)
     phone_number VARCHAR(20),       -- Contact number
-	transaction_id TEXT UNIQUE
-)
+    link_id TEXT UNIQUE,            -- Unique 1link ID (renamed for better readability)
+    is_clerk BOOLEAN DEFAULT FALSE, -- Boolean to indicate if the user is a clerk
+    CONSTRAINT check_clerk_password CHECK (
+        (is_clerk = TRUE AND password IS NOT NULL) OR (is_clerk = FALSE AND password IS NULL)
+    )
+);
+
 
 -- bill 
 CREATE TABLE bill (
