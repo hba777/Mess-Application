@@ -41,24 +41,12 @@ const getUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const {
-      cms_id,
-      name, // Optional
-      password,
-      department,
-      rank, // Optional
-      pma_course,
-      degree,
-      phone_number,
-      total_due = 0,
-    } = req.body;
-
-    console.log("Request Body:", req.body);
+    const { cms_id, password, phone_number } = req.body;
 
     // Validate required fields
-    if (!cms_id || !password  || !phone_number) {
+    if (!cms_id || !password || !phone_number) {
       return res.status(400).json({
-        message: "All fields including password (except name, rank, and total_due) are required",
+        message: "cms_id, password, and phone_number are required",
       });
     }
 
@@ -66,23 +54,9 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Build dynamic query with optional fields
-    const fields = ["cms_id", "password", "department", "pma_course", "degree", "phone_number", "total_due"];
-    const values = [cms_id, hashedPassword, department, pma_course, degree, phone_number, total_due];
-
-    if (name) {
-      fields.push("name");
-      values.push(name);
-    }
-
-    if (rank) {
-      fields.push("rank");
-      values.push(rank);
-    }
-
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
-
-    const query = `INSERT INTO users (${fields.join(", ")}) VALUES (${placeholders}) RETURNING *`;
+    // Prepare query to insert user with cms_id, password, and phone_number
+    const query = `INSERT INTO users (cms_id, password, phone_number) VALUES ($1, $2, $3) RETURNING cms_id, phone_number`;
+    const values = [cms_id, hashedPassword, phone_number];
 
     // Insert new user into the database
     const result = await queryDb(query, values);
@@ -91,8 +65,10 @@ const createUser = async (req, res) => {
       return res.status(500).json({ message: "User creation failed" });
     }
 
-    res.status(201).json({ message: "User created successfully", user: result[0] });
-
+    res.status(201).json({
+      message: "User created successfully",
+      user: result[0],
+    });
   } catch (err) {
     console.error("Error in createUser:", err);
 
@@ -101,10 +77,11 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: "User ID already exists" });
     }
 
-    res.status(500).json({ message: "Error creating user", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error creating user", error: err.message });
   }
 };
-
 
 // Update User (Admin Only)
 const updateUser = async (req, res) => {

@@ -12,14 +12,8 @@ VALUES ('admin', 'adminpassword');
 CREATE TABLE users (
     cms_id INT PRIMARY KEY,         -- Unique identifier for each user
     password VARCHAR(255) NOT NULL, -- User password (hashed for security)
-    name VARCHAR(255) NOT NULL,      -- Full name of the user
-    department VARCHAR(255),         -- Department where the user belongs
-    rank VARCHAR(100),               -- User's rank
-    Pma_course VARCHAR(100),         -- PMA course
-    degree VARCHAR(255),             -- User's degree
-    phone_number VARCHAR(20),        -- Contact number
-    total_due DECIMAL(10,2) DEFAULT 0.00  -- Total due amount (default 0)
-);
+    phone_number VARCHAR(20)        -- Contact number
+)
 
 -- bill 
 CREATE TABLE bill (
@@ -65,7 +59,6 @@ CREATE TABLE bill (
     amount_received NUMERIC(10,2),
     gTotal NUMERIC(10,2) DEFAULT 0,
     balAmount NUMERIC(10,2) DEFAULT 0;
-    
 );
 
 CREATE TABLE bill_payment (
