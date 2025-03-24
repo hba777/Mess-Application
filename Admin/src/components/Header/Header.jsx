@@ -30,22 +30,7 @@ const Header = () => {
               Summary
             </Link>
           </li>
-          {/* <li>
-            <Link
-              to="/addBills"
-              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
-            >
-              Add Bills
-            </Link>
-          </li> */}
-          <li>
-            <Link
-              to="/verifyBills"
-              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
-            >
-              Verify Bills
-            </Link>
-          </li>
+          
           
           <li>
             <Link
