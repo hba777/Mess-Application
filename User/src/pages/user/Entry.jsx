@@ -4,51 +4,67 @@ import { useNavigate, useLocation } from "react-router-dom";
 const MessBillEntry = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [formData, setFormData] = useState(
-    location.state?.formData || {
-      cms_id: "", // Should be number if possible
-      // rank: "",
-      // name: "",
-      course: "",
-      m_subs: 0.0,
-      saving: 0.0,
-      c_fund: 0.0,
-      messing: 0.0,
-      e_messing: 0.0,
-      sui_gas_per_day: 0.0,
-      sui_gas_25_percent: 0.0,
-      tea_bar_mcs: 0.0,
-      dining_hall_charges: 0.0,
-      swpr: 0.0,
-      laundry: 0.0,
-      gar_mess: 0.0,
-      room_maint: 0.0,
-      elec_charges_160_block: 0.0,
-      internet: 0.0,
-      svc_charges: 0.0,
-      sui_gas_boqs: 0.0,
-      sui_gas_166_cd: 0.0,
-      sui_gas_166_block: 0.0,
-      lounge_160: 0.0,
-      rent_charges: 0.0,
-      fur_maint: 0.0,
-      sui_gas_elec_fts: 0.0,
-      mat_charges: 0.0,
-      hc_wa: 0.0,
-      gym: 0.0,
-      cafe_maint_charges: 0.0,
-      dine_out: 0.0,
-      payamber: 0.0,
-      student_societies_fund: 0.0,
-      dinner_ni_jscmcc_69: 0.0,
-      current_bill: 0.0,
-      arrear: 0.0,
-      receipt_no: "",
-      amount_received: 0.0,
-      gTotal: 0.0,
-      balAmount: 0.0,
-    }
-  );
+  const getDefaultFormData = () => ({
+    cms_id: "",
+    course: "",
+    m_subs: 0.0,
+    saving: 0.0,
+    c_fund: 0.0,
+    messing: 0.0,
+    e_messing: 0.0,
+    sui_gas_per_day: 0.0,
+    sui_gas_25_percent: 0.0,
+    tea_bar_mcs: 0.0,
+    dining_hall_charges: 0.0,
+    swpr: 0.0,
+    laundry: 0.0,
+    gar_mess: 0.0,
+    room_maint: 0.0,
+    elec_charges_160_block: 0.0,
+    internet: 0.0,
+    svc_charges: 0.0,
+    sui_gas_boqs: 0.0,
+    sui_gas_166_cd: 0.0,
+    sui_gas_166_block: 0.0,
+    lounge_160: 0.0,
+    rent_charges: 0.0,
+    fur_maint: 0.0,
+    sui_gas_elec_fts: 0.0,
+    mat_charges: 0.0,
+    hc_wa: 0.0,
+    gym: 0.0,
+    cafe_maint_charges: 0.0,
+    dine_out: 0.0,
+    payamber: 0.0,
+    student_societies_fund: 0.0,
+    dinner_ni_jscmcc_69: 0.0,
+    current_bill: 0.0,
+    arrear: 0.0,
+    receipt_no: "",
+    amount_received: 0.0,
+    gTotal: 0.0,
+    balAmount: 0.0,
+  });
+
+  const getStoredFormData = () => {
+    const savedData = localStorage.getItem("userBill");
+    console.log(savedData);
+
+    if (!savedData) return null;
+
+    const parsedData = JSON.parse(savedData);
+
+    // Remove `rank` and `name` keys if they exist
+    const { rank, name, ...filteredData } = parsedData;
+
+    return filteredData;
+  };
+
+  const [formData, setFormData] = useState(() => {
+    return (
+      location.state?.formData || getStoredFormData() || getDefaultFormData()
+    );
+  });
 
   const [errorMessages, setErrorMessages] = useState({});
   const [submissionMessage, setSubmissionMessage] = useState(null);
@@ -288,6 +304,8 @@ const MessBillEntry = () => {
             <label htmlFor={key} className="font-semibold text-gray-300 mb-1">
               {key === "cms_id"
                 ? "User ID"
+                : key === "dinner_ni_jscmcc_69"
+                ? "Dinner Night"
                 : key
                     .replace(/([a-z])([A-Z])/g, "$1 $2")
                     .replace(/\b\w/g, (char) => char.toUpperCase())}
