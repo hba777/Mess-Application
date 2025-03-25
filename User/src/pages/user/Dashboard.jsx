@@ -56,7 +56,7 @@ const UserBill = () => {
           type="text"
           value={cmsId}
           onChange={(e) => setCmsId(e.target.value)}
-          placeholder="Enter CMS ID"
+          placeholder="Enter User ID"
           className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button

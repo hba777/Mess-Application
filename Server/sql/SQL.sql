@@ -141,3 +141,79 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION track_pending_amount_via_payments()
+RETURNS TABLE (
+    cms_id INT, 
+    total_paid NUMERIC(10,2), 
+    last_payment_date TIMESTAMP
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        bp.payer_cms_id AS cms_id, 
+        COALESCE(SUM(bp.payment_amount), 0) AS total_paid, 
+        MAX(bp.payment_date) AS last_payment_date
+    FROM bill_payment bp
+    WHERE bp.status = 'Paid'  -- Only count completed payments
+    GROUP BY bp.payer_cms_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_pending_bills_via_payments()
+RETURNS NUMERIC(10,2) 
+LANGUAGE plpgsql 
+AS $$
+DECLARE 
+    total_pending NUMERIC(10,2);
+BEGIN
+    SELECT 
+        COALESCE(SUM(b.gTotal - COALESCE(bp.total_paid, 0)), 0) 
+    INTO total_pending
+    FROM bill b
+    LEFT JOIN (
+        SELECT bill_id, SUM(payment_amount) AS total_paid
+        FROM bill_payment
+        WHERE status = 'Paid'
+        GROUP BY bill_id
+    ) bp ON b.id = bp.bill_id
+    WHERE (b.gTotal - COALESCE(bp.total_paid, 0)) > 0;  -- Bills with remaining balance
+
+    RETURN total_pending;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_paid_bills_via_payments()
+RETURNS NUMERIC(10,2) 
+LANGUAGE plpgsql 
+AS $$
+DECLARE 
+    total_paid NUMERIC(10,2);
+BEGIN
+    SELECT COALESCE(SUM(payment_amount), 0) INTO total_paid
+    FROM bill_payment
+    WHERE status = 'Paid';
+
+    RETURN total_paid;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_total_users_who_paid_via_payments()
+RETURNS INT 
+LANGUAGE plpgsql 
+AS $$
+DECLARE 
+    total_users_paid INT;
+BEGIN
+    SELECT COUNT(DISTINCT payer_cms_id) INTO total_users_paid 
+    FROM bill_payment
+    WHERE status = 'Paid';
+
+    RETURN total_users_paid;
+END;
+$$;
+
+
+
+

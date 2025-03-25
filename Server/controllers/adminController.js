@@ -152,10 +152,11 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Error deleting user", error: err });
   }
 };
-
 const getTotalUsers = async (req, res) => {
   try {
-    const result = await queryDb("SELECT get_total_users() AS total_users");
+    const result = await queryDb(
+      "SELECT get_total_users() AS total_users"
+    );
     res.json({ total_users: result[0].total_users });
   } catch (err) {
     console.error("Error in getTotalUsers:", err);
@@ -166,7 +167,7 @@ const getTotalUsers = async (req, res) => {
 const getTotalPendingBills = async (req, res) => {
   try {
     const result = await queryDb(
-      "SELECT get_total_pending_bills() AS total_pending"
+      "SELECT get_total_pending_bills_via_payments() AS total_pending"
     );
     res.json({ total_pending: result[0].total_pending });
   } catch (err) {
@@ -177,7 +178,9 @@ const getTotalPendingBills = async (req, res) => {
 
 const getTotalPaidBills = async (req, res) => {
   try {
-    const result = await queryDb("SELECT get_total_paid_bills() AS total_paid");
+    const result = await queryDb(
+      "SELECT get_total_paid_bills_via_payments() AS total_paid"
+    );
     res.json({ total_paid: result[0].total_paid });
   } catch (err) {
     console.error("Error in getTotalPaidBills:", err);
@@ -188,7 +191,7 @@ const getTotalPaidBills = async (req, res) => {
 const getTotalUsersWhoPaid = async (req, res) => {
   try {
     const result = await queryDb(
-      "SELECT get_total_users_who_paid() AS total_users_paid"
+      "SELECT get_total_users_who_paid_via_payments() AS total_users_paid"
     );
     res.json({ total_users_paid: result[0].total_users_paid });
   } catch (err) {
@@ -196,6 +199,7 @@ const getTotalUsersWhoPaid = async (req, res) => {
     res.status(500).json({ message: "Error fetching total users who paid" });
   }
 };
+
 
 module.exports = {
   loginAdmin,
