@@ -1,69 +1,119 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// Utility function to calculate totals
+const calculateTotals = (data) => {
+  const numericFields = [
+    "m_subs",
+    "saving",
+    "c_fund",
+    "messing",
+    "e_messing",
+    "sui_gas_per_day",
+    "sui_gas_25_percent",
+    "tea_bar_mcs",
+    "dining_hall_charges",
+    "swpr",
+    "laundry",
+    "gar_mess",
+    "room_maint",
+    "elec_charges_160_block",
+    "internet",
+    "svc_charges",
+    "sui_gas_boqs",
+    "sui_gas_166_cd",
+    "sui_gas_166_block",
+    "lounge_160",
+    "rent_charges",
+    "fur_maint",
+    "sui_gas_elec_fts",
+    "mat_charges",
+    "hc_wa",
+    "gym",
+    "cafe_maint_charges",
+    "dine_out",
+    "payamber",
+    "student_societies_fund",
+    "dinner_ni_jscmcc_69",
+    "current_bill",
+    "arrear",
+  ];
+
+  const gTotal = numericFields.reduce((total, field) => {
+    return total + (parseFloat(data[field]) || 0);
+  }, 0);
+
+  const amountReceived = parseFloat(data.amount_received || 0);
+  const balAmount = gTotal - amountReceived;
+
+  return { ...data, gTotal, balAmount };
+};
+
+const getDefaultFormData = () => ({
+  cms_id: "",
+  course: "",
+  m_subs: 0.0,
+  saving: 0.0,
+  c_fund: 0.0,
+  messing: 0.0,
+  e_messing: 0.0,
+  sui_gas_per_day: 0.0,
+  sui_gas_25_percent: 0.0,
+  tea_bar_mcs: 0.0,
+  dining_hall_charges: 0.0,
+  swpr: 0.0,
+  laundry: 0.0,
+  gar_mess: 0.0,
+  room_maint: 0.0,
+  elec_charges_160_block: 0.0,
+  internet: 0.0,
+  svc_charges: 0.0,
+  sui_gas_boqs: 0.0,
+  sui_gas_166_cd: 0.0,
+  sui_gas_166_block: 0.0,
+  lounge_160: 0.0,
+  rent_charges: 0.0,
+  fur_maint: 0.0,
+  sui_gas_elec_fts: 0.0,
+  mat_charges: 0.0,
+  hc_wa: 0.0,
+  gym: 0.0,
+  cafe_maint_charges: 0.0,
+  dine_out: 0.0,
+  payamber: 0.0,
+  student_societies_fund: 0.0,
+  dinner_ni_jscmcc_69: 0.0,
+  current_bill: 0.0,
+  arrear: 0.0,
+  receipt_no: "",
+  amount_received: 0.0,
+  gTotal: 0.0,
+  balAmount: 0.0,
+});
+
+const getStoredFormData = () => {
+  const savedData = localStorage.getItem("userBill");
+  if (!savedData) return null;
+
+  const parsedData = JSON.parse(savedData);
+
+  // Remove extra or incorrect keys
+  const {
+    rank, name, gtotal, balamount, // remove these
+    ...cleaned
+  } = parsedData;
+
+  // Recalculate the correct totals
+  return calculateTotals(cleaned);
+};
+
 const MessBillEntry = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const getDefaultFormData = () => ({
-    cms_id: "",
-    course: "",
-    m_subs: 0.0,
-    saving: 0.0,
-    c_fund: 0.0,
-    messing: 0.0,
-    e_messing: 0.0,
-    sui_gas_per_day: 0.0,
-    sui_gas_25_percent: 0.0,
-    tea_bar_mcs: 0.0,
-    dining_hall_charges: 0.0,
-    swpr: 0.0,
-    laundry: 0.0,
-    gar_mess: 0.0,
-    room_maint: 0.0,
-    elec_charges_160_block: 0.0,
-    internet: 0.0,
-    svc_charges: 0.0,
-    sui_gas_boqs: 0.0,
-    sui_gas_166_cd: 0.0,
-    sui_gas_166_block: 0.0,
-    lounge_160: 0.0,
-    rent_charges: 0.0,
-    fur_maint: 0.0,
-    sui_gas_elec_fts: 0.0,
-    mat_charges: 0.0,
-    hc_wa: 0.0,
-    gym: 0.0,
-    cafe_maint_charges: 0.0,
-    dine_out: 0.0,
-    payamber: 0.0,
-    student_societies_fund: 0.0,
-    dinner_ni_jscmcc_69: 0.0,
-    current_bill: 0.0,
-    arrear: 0.0,
-    receipt_no: "",
-    amount_received: 0.0,
-    gTotal: 0.0,
-    balAmount: 0.0,
-  });
-
-  const getStoredFormData = () => {
-    const savedData = localStorage.getItem("userBill");
-    console.log(savedData);
-
-    if (!savedData) return null;
-
-    const parsedData = JSON.parse(savedData);
-
-    // Remove `rank` and `name` keys if they exist
-    const { rank, name, ...filteredData } = parsedData;
-
-    return filteredData;
-  };
 
   const [formData, setFormData] = useState(() => {
-    return (
-      location.state?.formData || getStoredFormData() || getDefaultFormData()
-    );
+    const stored = location.state?.formData || getStoredFormData();
+    return stored || getDefaultFormData();
   });
 
   const [errorMessages, setErrorMessages] = useState({});
@@ -116,18 +166,15 @@ const MessBillEntry = () => {
         const updatedValue = parseFloat(value) || 0;
         const updatedFormData = { ...formData, [name]: updatedValue };
 
-        // Recalculate gTotal
         const gTotal = numericFields
-          .filter((field) => field !== "amount_received") // Exclude "amount_received"
+          .filter((field) => field !== "amount_received")
           .reduce(
             (total, field) => total + (parseFloat(updatedFormData[field]) || 0),
             0
           );
 
-        // Recalculate balAmount dynamically
         const amountReceived = updatedFormData.amount_received || 0;
         const balAmount = gTotal - amountReceived;
-        console.log(balAmount);
 
         setFormData({ ...updatedFormData, gTotal, balAmount });
       } else {
@@ -285,7 +332,6 @@ const MessBillEntry = () => {
     localStorage.removeItem("userBill"); // Clears all local storage
     navigate("/userDashboard");
   };
-  
 
   return (
     <div className="p-5 bg-slate-800 min-h-screen">
