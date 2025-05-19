@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 // Login User
 const loginUser = async (req, res) => {
   const { cms_id, password } = req.body;
+
   try {
     const result = await queryDb("SELECT * FROM users WHERE cms_id = $1", [
       cms_id,
@@ -16,20 +17,30 @@ const loginUser = async (req, res) => {
 
     const user = result[0];
 
-    // Compare hashed password
+    // Allow login only for clerks
+    if (!user.is_clerk) {
+      return res.status(403).json({ message: "Login allowed for clerks only" });
+    }
+
+    // Check if password is stored and then verify
+    if (!user.password) {
+      return res.status(401).json({ message: "No password set for this user" });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid User ID or password" });
     }
 
     const token = generateToken(user); // Generate JWT
-
     res.status(200).json({ message: "Login successful", token });
+
   } catch (err) {
     console.error("Error in loginUser:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Create a new bill
 const createBill = async (req, res) => {

@@ -21,11 +21,11 @@ const LoginPage = () => {
         setIsLoading(false);
         return;
       }
-      if (!password.trim()) {
-        setError("Please enter your password.");
-        setIsLoading(false);
-        return;
-      }
+      // if (!password.trim()) {
+      //   setError("Please enter your password.");
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       const response = await fetch("http://localhost:5000/api/user/login", {
         method: "POST",

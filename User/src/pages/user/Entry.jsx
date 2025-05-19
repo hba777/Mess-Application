@@ -281,11 +281,17 @@ const MessBillEntry = () => {
     }
   };
 
+  const handleNavigateToDashboard = () => {
+    localStorage.removeItem("userBill"); // Clears all local storage
+    navigate("/userDashboard");
+  };
+  
+
   return (
     <div className="p-5 bg-slate-800 min-h-screen">
       <div className="flex items-center mb-8">
         <button
-          onClick={() => navigate("/userDashboard")}
+          onClick={() => handleNavigateToDashboard()}
           className="text-white bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg mr-4"
         >
           Back
