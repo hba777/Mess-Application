@@ -82,6 +82,32 @@ CREATE TABLE bill_payment (
     FOREIGN KEY (payer_cms_id) REFERENCES users(cms_id) ON DELETE SET NULL
 );
 
+
+--Update Arrears after Payment
+CREATE OR REPLACE FUNCTION update_bill_after_payment()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE bill
+  SET 
+    amount_received = amount_received + NEW.payment_amount,
+    balAmount = gTotal - (amount_received + NEW.payment_amount),
+    arrear = CASE 
+      WHEN gTotal - (amount_received + NEW.payment_amount) <= 0 THEN 0
+      ELSE arrear
+    END
+  WHERE id = NEW.bill_id;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_bill_after_payment
+AFTER INSERT ON bill_payment
+FOR EACH ROW
+WHEN (NEW.status = 'Paid')
+EXECUTE FUNCTION update_bill_after_payment();
+
+
 -- This procedure will sum the total bill amount (gTotal) 
 -- and subtract the total received amount (amount_received) for each cms_id
 CREATE OR REPLACE FUNCTION track_pending_amount()
