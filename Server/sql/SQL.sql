@@ -86,25 +86,46 @@ CREATE TABLE bill_payment (
 --Update Arrears after Payment
 CREATE OR REPLACE FUNCTION update_bill_after_payment()
 RETURNS TRIGGER AS $$
+DECLARE
+    current_amount_received NUMERIC(10,2);
+    new_total_received NUMERIC(10,2);
+    bill_total NUMERIC(10,2);
+    new_bal_amount NUMERIC(10,2);
 BEGIN
-  UPDATE bill
-  SET 
-    amount_received = amount_received + NEW.payment_amount,
-    balAmount = gTotal - (amount_received + NEW.payment_amount),
-    arrear = CASE 
-      WHEN gTotal - (amount_received + NEW.payment_amount) <= 0 THEN 0
-      ELSE arrear
-    END
-  WHERE id = NEW.bill_id;
+    -- Only proceed for 'Paid' status
+    IF NEW.status <> 'Paid' THEN
+        RETURN NEW;
+    END IF;
 
-  RETURN NEW;
+    -- Lock the row to avoid race conditions
+    SELECT amount_received, gTotal INTO current_amount_received, bill_total
+    FROM bill
+    WHERE id = NEW.bill_id
+    FOR UPDATE;
+
+    -- Calculate new totals
+    new_total_received := current_amount_received + NEW.payment_amount;
+    new_bal_amount := bill_total - new_total_received;
+
+    -- Update the bill record
+    UPDATE bill
+    SET 
+        amount_received = new_total_received,
+        balAmount = GREATEST(new_bal_amount, 0),  -- prevent negative balance
+        arrear = CASE 
+            WHEN new_bal_amount <= 0 THEN 0
+            ELSE arrear
+        END
+    WHERE id = NEW.bill_id;
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER trg_update_bill_after_payment
 AFTER INSERT ON bill_payment
 FOR EACH ROW
-WHEN (NEW.status = 'Paid')
 EXECUTE FUNCTION update_bill_after_payment();
 
 
