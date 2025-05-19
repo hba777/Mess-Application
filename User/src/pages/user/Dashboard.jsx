@@ -32,7 +32,7 @@ const UserBill = () => {
           localStorage.setItem("userBill", JSON.stringify(matchedBill));
           handleGenerateBillNavigation();
         } else {
-          setError("No bill found for the entered CMS ID.");
+          setError("No bill found for the entered User ID.");
           setBill(null);
         }
       }
