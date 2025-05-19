@@ -91,8 +91,8 @@ function DetailComponent() {
 
     const newEntry = {
       ...formData,
-      gTotal: calculatedTotal,
-      balAmount: balanceAmount,
+      gtotal: calculatedTotal,
+      balamount: balanceAmount,
     };
 
     console.log("New entry to be sent:", newEntry);
@@ -269,9 +269,9 @@ function DetailComponent() {
       // { label: "1-Link Bill ID", value: BILL_ID_LABEL },
       //  { label: "Annual Corps Fund", value: formData.annual_corps_fund },
       //  { label: "ACW (Medical Fund)", value: formData.acw_med_fund },
-      //  { label: "Total Amount", value: formData.gTotal },
+      //  { label: "Total Amount", value: formData.gtotal },
       { label: "Amount Received", value: formData.amount_received },
-      // { label: "Balance Amount", value: formData.balAmount },
+      // { label: "Balance Amount", value: formData.balamount },
     ];
 
     // Table content with page handling
@@ -311,13 +311,13 @@ function DetailComponent() {
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
     currentY += rowHeight;
     doc.text("G. Total:", tableXStart + 5, currentY);
-    doc.text(`${formData.gTotal || ""}`, verticalLineX + 20, currentY, {
+    doc.text(`${formData.gtotal || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
     currentY += rowHeight;
     doc.text("Balance Amount:", tableXStart + 5, currentY);
-    doc.text(`${formData.balAmount || ""}`, verticalLineX + 20, currentY, {
+    doc.text(`${formData.balamount || ""}`, verticalLineX + 20, currentY, {
       align: "right",
     });
     doc.line(tableXStart, currentY - 4, tableXStart + tableWidth, currentY - 4);
