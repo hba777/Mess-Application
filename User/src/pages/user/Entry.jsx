@@ -2,52 +2,35 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Utility function to calculate totals
-const calculateTotals = (data) => {
-  const numericFields = [
-    "m_subs",
-    "saving",
-    "c_fund",
-    "messing",
-    "e_messing",
-    "sui_gas_per_day",
-    "sui_gas_25_percent",
-    "tea_bar_mcs",
-    "dining_hall_charges",
-    "swpr",
-    "laundry",
-    "gar_mess",
-    "room_maint",
-    "elec_charges_160_block",
-    "internet",
-    "svc_charges",
-    "sui_gas_boqs",
-    "sui_gas_166_cd",
-    "sui_gas_166_block",
-    "lounge_160",
-    "rent_charges",
-    "fur_maint",
-    "sui_gas_elec_fts",
-    "mat_charges",
-    "hc_wa",
-    "gym",
-    "cafe_maint_charges",
-    "dine_out",
-    "payamber",
-    "student_societies_fund",
-    "dinner_ni_jscmcc_69",
-    "current_bill",
-    "arrear",
+const calculateTotals = (formData) => {
+  const chargeFields = [
+    "m_subs", "saving", "c_fund", "messing", "e_messing", "sui_gas_per_day", "sui_gas_25_percent",
+    "tea_bar_mcs", "dining_hall_charges", "swpr", "laundry", "gar_mess", "room_maint",
+    "elec_charges_160_block", "internet", "svc_charges", "sui_gas_boqs", "sui_gas_166_cd",
+    "sui_gas_166_block", "lounge_160", "rent_charges", "fur_maint", "sui_gas_elec_fts",
+    "mat_charges", "hc_wa", "gym", "cafe_maint_charges", "dine_out", "payamber",
+    "student_societies_fund", "dinner_ni_jscmcc_69", "current_bill", "arrear"
   ];
 
-  const gTotal = numericFields.reduce((total, field) => {
-    return total + (parseFloat(data[field]) || 0);
-  }, 0);
+  let total = 0;
 
-  const amountReceived = parseFloat(data.amount_received || 0);
-  const balAmount = gTotal - amountReceived;
+  // Always parse fields fresh
+  for (const key of chargeFields) {
+    total += parseFloat(formData[key]) || 0;
+  }
 
-  return { ...data, gTotal, balAmount };
+  const gtotal = total;
+  const amountReceived = parseFloat(formData.amount_received) || 0;
+  const balamount = gtotal - amountReceived;
+
+  return {
+    ...formData,
+    gtotal,
+    balamount,
+  };
 };
+
+
 
 const getDefaultFormData = () => ({
   cms_id: "",
@@ -87,8 +70,8 @@ const getDefaultFormData = () => ({
   arrear: 0.0,
   receipt_no: "",
   amount_received: 0.0,
-  gTotal: 0.0,
-  balAmount: 0.0,
+  gtotal: 0.0,
+  balamount: 0.0,
 });
 
 const getStoredFormData = () => {
@@ -97,15 +80,18 @@ const getStoredFormData = () => {
 
   const parsedData = JSON.parse(savedData);
 
-  // Remove extra or incorrect keys
   const {
-    rank, name, gtotal, balamount, // remove these
-    ...cleaned
+    gtotal, balamount, rank, name, ...rest
   } = parsedData;
 
-  // Recalculate the correct totals
-  return calculateTotals(cleaned);
+  // Force reset totals before passing to calculator
+  return calculateTotals({
+    ...rest,
+    gtotal: 0,
+    balamount: 0,
+  });
 };
+
 
 const MessBillEntry = () => {
   const navigate = useNavigate();
@@ -121,73 +107,17 @@ const MessBillEntry = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    const numericFields = [
-      "m_subs",
-      "saving",
-      "c_fund",
-      "messing",
-      "e_messing",
-      "sui_gas_per_day",
-      "sui_gas_25_percent",
-      "tea_bar_mcs",
-      "dining_hall_charges",
-      "swpr",
-      "laundry",
-      "gar_mess",
-      "room_maint",
-      "elec_charges_160_block",
-      "internet",
-      "svc_charges",
-      "sui_gas_boqs",
-      "sui_gas_166_cd",
-      "sui_gas_166_block",
-      "lounge_160",
-      "rent_charges",
-      "fur_maint",
-      "sui_gas_elec_fts",
-      "mat_charges",
-      "hc_wa",
-      "gym",
-      "cafe_maint_charges",
-      "dine_out",
-      "payamber",
-      "student_societies_fund",
-      "dinner_ni_jscmcc_69",
-      "current_bill",
-      "arrear",
-      "amount_received",
-    ];
-
-    if (numericFields.includes(name)) {
-      if (/^\d*\.?\d*$/.test(value)) {
-        setErrorMessages((prev) => ({ ...prev, [name]: "" }));
-
-        const updatedValue = parseFloat(value) || 0;
-        const updatedFormData = { ...formData, [name]: updatedValue };
-
-        const gTotal = numericFields
-          .filter((field) => field !== "amount_received")
-          .reduce(
-            (total, field) => total + (parseFloat(updatedFormData[field]) || 0),
-            0
-          );
-
-        const amountReceived = updatedFormData.amount_received || 0;
-        const balAmount = gTotal - amountReceived;
-
-        setFormData({ ...updatedFormData, gTotal, balAmount });
-      } else {
-        setErrorMessages((prev) => ({
-          ...prev,
-          [name]: "Please enter a valid positive number.",
-        }));
-      }
-      return;
-    }
-
-    setFormData({ ...formData, [name]: value });
+  
+    const updatedData = {
+      ...formData,
+      [name]: value,
+      gtotal: 0,       // reset before recalc
+      balamount: 0,
+    };
+  
+    setFormData(calculateTotals(updatedData));
   };
+  
 
   const handleReviewNav = async (e) => {
     e.preventDefault();
@@ -289,8 +219,8 @@ const MessBillEntry = () => {
 
       const newEntry = {
         ...updatedFormData,
-        gTotal: calculatedTotal,
-        balAmount: balanceAmount,
+        gtotal: calculatedTotal,
+        balamount: balanceAmount,
       };
 
       console.log(newEntry);
@@ -318,8 +248,8 @@ const MessBillEntry = () => {
 
       const newEntry = {
         ...updatedFormData,
-        gTotal: calculatedTotal,
-        balAmount: balanceAmount,
+        gtotal: calculatedTotal,
+        balamount: balanceAmount,
       };
 
       console.log(newEntry);
