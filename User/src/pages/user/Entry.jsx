@@ -4,12 +4,39 @@ import { useNavigate, useLocation } from "react-router-dom";
 // Utility function to calculate totals
 const calculateTotals = (formData) => {
   const chargeFields = [
-    "m_subs", "saving", "c_fund", "messing", "e_messing", "sui_gas_per_day", "sui_gas_25_percent",
-    "tea_bar_mcs", "dining_hall_charges", "swpr", "laundry", "gar_mess", "room_maint",
-    "elec_charges_160_block", "internet", "svc_charges", "sui_gas_boqs", "sui_gas_166_cd",
-    "sui_gas_166_block", "lounge_160", "rent_charges", "fur_maint", "sui_gas_elec_fts",
-    "mat_charges", "hc_wa", "gym", "cafe_maint_charges", "dine_out", "payamber",
-    "student_societies_fund", "dinner_ni_jscmcc_69", "current_bill", "arrear"
+    "m_subs",
+    "saving",
+    "c_fund",
+    "messing",
+    "e_messing",
+    "sui_gas_per_day",
+    "sui_gas_25_percent",
+    "tea_bar_mcs",
+    "dining_hall_charges",
+    "swpr",
+    "laundry",
+    "gar_mess",
+    "room_maint",
+    "elec_charges_160_block",
+    "internet",
+    "svc_charges",
+    "sui_gas_boqs",
+    "sui_gas_166_cd",
+    "sui_gas_166_block",
+    "lounge_160",
+    "rent_charges",
+    "fur_maint",
+    "sui_gas_elec_fts",
+    "mat_charges",
+    "hc_wa",
+    "gym",
+    "cafe_maint_charges",
+    "dine_out",
+    "payamber",
+    "student_societies_fund",
+    "dinner_ni_jscmcc_69",
+    "current_bill",
+    "arrear",
   ];
 
   let total = 0;
@@ -29,8 +56,6 @@ const calculateTotals = (formData) => {
     balamount,
   };
 };
-
-
 
 const getDefaultFormData = () => ({
   cms_id: "",
@@ -80,9 +105,7 @@ const getStoredFormData = () => {
 
   const parsedData = JSON.parse(savedData);
 
-  const {
-    gtotal, balamount, rank, name, ...rest
-  } = parsedData;
+  const { gtotal, balamount, rank, name, ...rest } = parsedData;
 
   // Force reset totals before passing to calculator
   return calculateTotals({
@@ -91,7 +114,6 @@ const getStoredFormData = () => {
     balamount: 0,
   });
 };
-
 
 const MessBillEntry = () => {
   const navigate = useNavigate();
@@ -107,17 +129,16 @@ const MessBillEntry = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     const updatedData = {
       ...formData,
       [name]: value,
-      gtotal: 0,       // reset before recalc
+      gtotal: 0, // reset before recalc
       balamount: 0,
     };
-  
+
     setFormData(calculateTotals(updatedData));
   };
-  
 
   const handleReviewNav = async (e) => {
     e.preventDefault();
@@ -281,51 +302,49 @@ const MessBillEntry = () => {
         onSubmit={handleReviewNav}
         className="grid gap-5 max-w-4xl mx-auto grid-cols-1 md:grid-cols-2"
       >
-        {Object.keys(formData).map((key) => (
-          <div key={key} className="flex flex-col">
-            <label htmlFor={key} className="font-semibold text-gray-300 mb-1">
-              {key === "cms_id"
-                ? "User ID"
-                : key === "dinner_ni_jscmcc_69"
-                ? "Dinner Night"
-                : key
-                    .replace(/([a-z])([A-Z])/g, "$1 $2")
-                    .replace(/\b\w/g, (char) => char.toUpperCase())}
-              :
-            </label>
+        {Object.keys(formData).map((key) => {
+          if (["due_date", "created_at", "status"].includes(key)) return null; // Skip these fields
 
-            <input
-              type={
-                key === "receipt_no" ||
-                [
-                  //"rank",
-                  //"name",
-                  "course",
-                  "current_bill",
-                ].includes(key)
-                  ? "text"
-                  : "number"
-              }
-              id={key}
-              name={key}
-              value={formData[key]}
-              onChange={handleChange}
-              required={[
-                "cms_id",
-                //"rank",
-                //"name",
-                "course",
-                "receipt_no",
-              ].includes(key)}
-              className="p-2 border border-gray-600 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errorMessages[key] && (
-              <span className="text-red-500 text-sm mt-1">
-                {errorMessages[key]}
-              </span>
-            )}
-          </div>
-        ))}
+          const isReadOnly = ["balAmount", "gTotal"].includes(key);
+
+          return (
+            <div key={key} className="flex flex-col">
+              <label htmlFor={key} className="font-semibold text-gray-300 mb-1">
+                {key === "cms_id"
+                  ? "User ID"
+                  : key === "dinner_ni_jscmcc_69"
+                  ? "Dinner Night"
+                  : key
+                      .replace(/([a-z])([A-Z])/g, "$1 $2")
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
+                :
+              </label>
+
+              <input
+                type={
+                  key === "receipt_no" ||
+                  ["course", "current_bill"].includes(key)
+                    ? "text"
+                    : "number"
+                }
+                id={key}
+                name={key}
+                value={formData[key]}
+                onChange={handleChange}
+                required={["cms_id", "course", "receipt_no"].includes(key)}
+                readOnly={isReadOnly}
+                className={`p-2 border border-gray-600 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isReadOnly ? "bg-gray-200 cursor-not-allowed" : ""
+                }`}
+              />
+              {errorMessages[key] && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errorMessages[key]}
+                </span>
+              )}
+            </div>
+          );
+        })}
 
         <div className="md:col-span-2">
           <button

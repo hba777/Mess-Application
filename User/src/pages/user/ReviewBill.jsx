@@ -408,9 +408,12 @@ function DetailComponent() {
                   ([key, value]) =>
                     ![
                       "cms_id",
-                      //  "rank",
-                      //   "name",
+                      // "rank",
+                      // "name",
                       "course",
+                      "due_date",
+                      "created_at",
+                      "status"
                     ].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
                         <td className="py-2 px-4 border-b border-gray-700">
