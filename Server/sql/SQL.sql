@@ -67,6 +67,38 @@ CREATE TABLE bill (
     FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
 );
 
+
+--Bill Table New Stuff
+ALTER TABLE bill
+ADD COLUMN due_date DATE,
+ADD COLUMN status TEXT DEFAULT 'Pending';  -- Values: Pending, Paid, Unpaid
+
+ALTER TABLE bill
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+
+-- New Set Payment status function
+CREATE OR REPLACE FUNCTION mark_overdue_bills()
+RETURNS VOID AS $$
+BEGIN
+    UPDATE bill
+    SET status = 'Unpaid'
+    WHERE 
+        CURRENT_DATE > due_date
+        AND amount_received < gTotal
+        AND status != 'Paid';
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete old bills
+CREATE OR REPLACE FUNCTION delete_old_bills()
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM bill
+    WHERE created_at < NOW() - INTERVAL '6 months';
+END;
+$$ LANGUAGE plpgsql;
+
 -- bill_payment table
 CREATE TABLE bill_payment (
     id SERIAL PRIMARY KEY,
@@ -83,69 +115,51 @@ CREATE TABLE bill_payment (
 );
 
 
---Update Arrears after Payment
-CREATE OR REPLACE FUNCTION update_bill_after_payment()
-RETURNS TRIGGER AS $$
-DECLARE
-    current_amount_received NUMERIC(10,2);
-    new_total_received NUMERIC(10,2);
-    bill_total NUMERIC(10,2);
-    new_bal_amount NUMERIC(10,2);
-BEGIN
-    -- Only proceed for 'Paid' status
-    IF NEW.status <> 'Paid' THEN
-        RETURN NEW;
-    END IF;
-
-    -- Lock the row to avoid race conditions
-    SELECT amount_received, gTotal INTO current_amount_received, bill_total
-    FROM bill
-    WHERE id = NEW.bill_id
-    FOR UPDATE;
-
-    -- Calculate new totals
-    new_total_received := current_amount_received + NEW.payment_amount;
-    new_bal_amount := bill_total - new_total_received;
-
-    -- Update the bill record
-    UPDATE bill
-    SET 
-        amount_received = new_total_received,
-        balAmount = GREATEST(new_bal_amount, 0),  -- prevent negative balance
-        arrear = CASE 
-            WHEN new_bal_amount <= 0 THEN 0
-            ELSE arrear
-        END
-    WHERE id = NEW.bill_id;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE TRIGGER trg_update_bill_after_payment
-AFTER INSERT ON bill_payment
-FOR EACH ROW
-EXECUTE FUNCTION update_bill_after_payment();
-
-
 -- This procedure will sum the total bill amount (gTotal) 
 -- and subtract the total received amount (amount_received) for each cms_id
-CREATE OR REPLACE FUNCTION track_pending_amount()
-RETURNS TABLE (cms_id INT, total_billed NUMERIC(10,2), total_paid NUMERIC(10,2), pending_amount NUMERIC(10,2))
+-- CREATE OR REPLACE FUNCTION track_pending_amount()
+-- RETURNS TABLE (cms_id INT, total_billed NUMERIC(10,2), total_paid NUMERIC(10,2), pending_amount NUMERIC(10,2))
+-- LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+--     RETURN QUERY
+--     SELECT 
+--         b.cms_id, 
+--         COALESCE(SUM(b.gTotal), 0) AS total_billed, 
+--         COALESCE(SUM(b.amount_received), 0) AS total_paid, 
+--         (COALESCE(SUM(b.gTotal), 0) - COALESCE(SUM(b.amount_received), 0)) AS pending_amount
+--     FROM bill b
+--     GROUP BY b.cms_id;
+-- END;
+-- $$;
+
+CREATE OR REPLACE FUNCTION track_pending_amount(p_cms_id INT)
+RETURNS NUMERIC(10,2)
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    arrear NUMERIC(10,2);
+    all_paid BOOLEAN;
 BEGIN
-    RETURN QUERY
-    SELECT 
-        b.cms_id, 
-        COALESCE(SUM(b.gTotal), 0) AS total_billed, 
-        COALESCE(SUM(b.amount_received), 0) AS total_paid, 
-        (COALESCE(SUM(b.gTotal), 0) - COALESCE(SUM(b.amount_received), 0)) AS pending_amount
-    FROM bill b
-    GROUP BY b.cms_id;
+    -- Check if all bills are marked Paid and fully received
+    SELECT BOOL_AND(status = 'Paid' AND amount_received = gTotal)
+    INTO all_paid
+    FROM bill
+    WHERE cms_id = p_cms_id;
+
+    IF all_paid THEN
+        RETURN 0;
+    ELSE
+        SELECT COALESCE(SUM(gTotal - amount_received), 0)
+        INTO arrear
+        FROM bill
+        WHERE cms_id = p_cms_id AND (status != 'Paid' OR amount_received != gTotal);
+        
+        RETURN arrear;
+    END IF;
 END;
 $$;
+
 
 -- KPIs
 CREATE OR REPLACE FUNCTION get_total_users()

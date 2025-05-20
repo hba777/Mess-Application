@@ -34,22 +34,82 @@ const loginUser = async (req, res) => {
 
     const token = generateToken(user); // Generate JWT
     res.status(200).json({ message: "Login successful", token });
-
   } catch (err) {
     console.error("Error in loginUser:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-
 // Create a new bill
 const createBill = async (req, res) => {
   try {
     const {
       cms_id,
-      rank = null, // Default to null if not provided
-      name = null, // Default to null if not provided
+      rank = null,
+      name = null,
       course,
+      m_subs = 0,
+      saving = 0,
+      c_fund = 0,
+      messing = 0,
+      e_messing = 0,
+      sui_gas_per_day = 0,
+      sui_gas_25_percent = 0,
+      tea_bar_mcs = 0,
+      dining_hall_charges = 0,
+      swpr = 0,
+      laundry = 0,
+      gar_mess = 0,
+      room_maint = 0,
+      elec_charges_160_block = 0,
+      internet = 0,
+      svc_charges = 0,
+      sui_gas_boqs = 0,
+      sui_gas_166_cd = 0,
+      sui_gas_166_block = 0,
+      lounge_160 = 0,
+      rent_charges = 0,
+      fur_maint = 0,
+      sui_gas_elec_fts = 0,
+      mat_charges = 0,
+      hc_wa = 0,
+      gym = 0,
+      cafe_maint_charges = 0,
+      dine_out = 0,
+      payamber = 0,
+      student_societies_fund = 0,
+      dinner_ni_jscmcc_69 = 0,
+      current_bill = 0,
+      arrear = 0,
+      receipt_no = null,
+      amount_received = 0,
+      gTotal,
+      balAmount,
+    } = req.body;
+
+    if (!cms_id || !course) {
+      return res.status(400).json({
+        message: "User ID and Course are required",
+      });
+    }
+
+    // ✅ Check if a bill already exists for this cms_id in the current month
+    const existing = await queryDb(
+      `SELECT * FROM bill 
+       WHERE cms_id = $1 
+       AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
+       AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
+      [cms_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        message: "A bill for this user already exists for the current month.",
+      });
+    }
+
+    // ✅ Calculate total and balance
+    const charges = [
       m_subs,
       saving,
       c_fund,
@@ -83,20 +143,13 @@ const createBill = async (req, res) => {
       dinner_ni_jscmcc_69,
       current_bill,
       arrear,
-      receipt_no,
-      amount_received,
-      gTotal,
-      balAmount,
-    } = req.body;
+    ];
 
-    // Validate required fields
-    if (!cms_id || !course) {
-      return res.status(400).json({
-        message: "User ID, Course, and Current Bill are required",
-      });
-    }
+    const total = charges.reduce((acc, val) => acc + Number(val), 0);
+    const totalToInsert = gTotal ?? total;
+    const balance = balAmount ?? totalToInsert - Number(amount_received);
 
-    // Insert new bill into the database
+    // ✅ Insert the bill
     const result = await queryDb(
       `INSERT INTO bill (
         cms_id, rank, name, course, m_subs, saving, c_fund, messing, e_messing,
@@ -112,8 +165,8 @@ const createBill = async (req, res) => {
       ) RETURNING *`,
       [
         cms_id,
-        rank, // Now optional
-        name, // Now optional
+        rank,
+        name,
         course,
         m_subs,
         saving,
@@ -150,8 +203,8 @@ const createBill = async (req, res) => {
         arrear,
         receipt_no,
         amount_received,
-        gTotal,
-        balAmount,
+        totalToInsert,
+        balance,
       ]
     );
 
@@ -159,19 +212,17 @@ const createBill = async (req, res) => {
       return res.status(500).json({ message: "Bill creation failed" });
     }
 
-    res
-      .status(201)
-      .json({ message: "Bill created successfully", bill: result[0] });
+    res.status(201).json({
+      message: "Bill created successfully",
+      bill: result[0],
+    });
   } catch (err) {
     console.error("Error in createBill:", err);
-
-    // Handle unique constraint violation (PostgreSQL error code 23505)
     if (err.code === "23505") {
-      return res
-        .status(400)
-        .json({ message: "Bill with this User ID already exists" });
+      return res.status(400).json({
+        message: "A bill with this User ID or receipt number already exists",
+      });
     }
-
     res
       .status(500)
       .json({ message: "Error creating bill", error: err.message });
