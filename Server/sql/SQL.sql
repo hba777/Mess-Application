@@ -117,21 +117,49 @@ CREATE TABLE bill_payment (
 
 -- This procedure will sum the total bill amount (gTotal) 
 -- and subtract the total received amount (amount_received) for each cms_id
-CREATE OR REPLACE FUNCTION track_pending_amount()
-RETURNS TABLE (cms_id INT, total_billed NUMERIC(10,2), total_paid NUMERIC(10,2), pending_amount NUMERIC(10,2))
+-- CREATE OR REPLACE FUNCTION track_pending_amount()
+-- RETURNS TABLE (cms_id INT, total_billed NUMERIC(10,2), total_paid NUMERIC(10,2), pending_amount NUMERIC(10,2))
+-- LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+--     RETURN QUERY
+--     SELECT 
+--         b.cms_id, 
+--         COALESCE(SUM(b.gTotal), 0) AS total_billed, 
+--         COALESCE(SUM(b.amount_received), 0) AS total_paid, 
+--         (COALESCE(SUM(b.gTotal), 0) - COALESCE(SUM(b.amount_received), 0)) AS pending_amount
+--     FROM bill b
+--     GROUP BY b.cms_id;
+-- END;
+-- $$;
+
+CREATE OR REPLACE FUNCTION track_pending_amount(p_cms_id INT)
+RETURNS NUMERIC(10,2)
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    arrear NUMERIC(10,2);
+    all_paid BOOLEAN;
 BEGIN
-    RETURN QUERY
-    SELECT 
-        b.cms_id, 
-        COALESCE(SUM(b.gTotal), 0) AS total_billed, 
-        COALESCE(SUM(b.amount_received), 0) AS total_paid, 
-        (COALESCE(SUM(b.gTotal), 0) - COALESCE(SUM(b.amount_received), 0)) AS pending_amount
-    FROM bill b
-    GROUP BY b.cms_id;
+    -- Check if all bills are marked Paid and fully received
+    SELECT BOOL_AND(status = 'Paid' AND amount_received = gTotal)
+    INTO all_paid
+    FROM bill
+    WHERE cms_id = p_cms_id;
+
+    IF all_paid THEN
+        RETURN 0;
+    ELSE
+        SELECT COALESCE(SUM(gTotal - amount_received), 0)
+        INTO arrear
+        FROM bill
+        WHERE cms_id = p_cms_id AND (status != 'Paid' OR amount_received != gTotal);
+        
+        RETURN arrear;
+    END IF;
 END;
 $$;
+
 
 -- KPIs
 CREATE OR REPLACE FUNCTION get_total_users()

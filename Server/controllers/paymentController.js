@@ -48,11 +48,12 @@ const createBillPayment = async (req, res) => {
   }
 
   try {
-    const result = await queryDb(
+    // 1. Insert the payment record
+    const paymentResult = await queryDb(
       `INSERT INTO bill_payment 
-      (bill_id, transaction_id, payer_cms_id, payment_amount, payment_method, receipt_number, status) 
-      VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 'Pending')) 
-      RETURNING *`,
+        (bill_id, transaction_id, payer_cms_id, payment_amount, payment_method, receipt_number, status)
+       VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 'Pending')) 
+       RETURNING *`,
       [
         bill_id,
         transaction_id,
@@ -64,15 +65,50 @@ const createBillPayment = async (req, res) => {
       ]
     );
 
+    let remainingAmount = parseFloat(payment_amount);
+
+    // 2. Fetch all unpaid or underpaid bills for that user
+    const unpaidBills = await queryDb(
+      `SELECT id, amount_received, gTotal 
+       FROM bill 
+       WHERE cms_id = $1 AND status != 'Paid'
+       ORDER BY due_date ASC NULLS LAST, created_at ASC`,
+      [payer_cms_id]
+    );
+
+    for (const bill of unpaidBills) {
+      const { id, amount_received, gtotal } = bill;
+      const pendingAmount = parseFloat(gtotal) - parseFloat(amount_received);
+
+      if (remainingAmount <= 0) break;
+
+      const payAmount = Math.min(remainingAmount, pendingAmount);
+      const updatedAmountReceived = parseFloat(amount_received) + payAmount;
+
+      const newStatus = updatedAmountReceived >= parseFloat(gtotal) ? "Paid" : "Pending";
+
+      // 3. Update each bill accordingly
+      await queryDb(
+        `UPDATE bill 
+         SET amount_received = $1,
+             status = $2
+         WHERE id = $3`,
+        [updatedAmountReceived, newStatus, id]
+      );
+
+      remainingAmount -= payAmount;
+    }
+
     res.status(201).json({
-      message: "Bill payment recorded successfully",
-      payment: result[0],
+      message: "Bill payment recorded and bills updated successfully",
+      payment: paymentResult[0],
     });
   } catch (err) {
     console.error("Error in createBillPayment:", err);
     res.status(500).json({ message: "Error creating bill payment" });
   }
 };
+
 
 // 🔹 Update Bill Payment
 const updateBillPayment = async (req, res) => {
