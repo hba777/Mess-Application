@@ -67,6 +67,28 @@ CREATE TABLE bill (
     FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
 );
 
+--Bill Table New Stuff
+ALTER TABLE bill
+ADD COLUMN due_date DATE,
+ADD COLUMN status TEXT DEFAULT 'Pending';  -- Values: Pending, Paid, Unpaid
+
+ALTER TABLE bill
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+
+-- New Set Payment status function
+CREATE OR REPLACE FUNCTION mark_overdue_bills()
+RETURNS VOID AS $$
+BEGIN
+    UPDATE bill
+    SET status = 'Unpaid'
+    WHERE 
+        CURRENT_DATE > due_date
+        AND amount_received < gTotal
+        AND status != 'Paid';
+END;
+$$ LANGUAGE plpgsql;
+
 -- bill_payment table
 CREATE TABLE bill_payment (
     id SERIAL PRIMARY KEY,
@@ -81,52 +103,6 @@ CREATE TABLE bill_payment (
     FOREIGN KEY (bill_id) REFERENCES bill(id) ON DELETE CASCADE,
     FOREIGN KEY (payer_cms_id) REFERENCES users(cms_id) ON DELETE SET NULL
 );
-
-
---Update Arrears after Payment
-CREATE OR REPLACE FUNCTION update_bill_after_payment()
-RETURNS TRIGGER AS $$
-DECLARE
-    current_amount_received NUMERIC(10,2);
-    new_total_received NUMERIC(10,2);
-    bill_total NUMERIC(10,2);
-    new_bal_amount NUMERIC(10,2);
-BEGIN
-    -- Only proceed for 'Paid' status
-    IF NEW.status <> 'Paid' THEN
-        RETURN NEW;
-    END IF;
-
-    -- Lock the row to avoid race conditions
-    SELECT amount_received, gTotal INTO current_amount_received, bill_total
-    FROM bill
-    WHERE id = NEW.bill_id
-    FOR UPDATE;
-
-    -- Calculate new totals
-    new_total_received := current_amount_received + NEW.payment_amount;
-    new_bal_amount := bill_total - new_total_received;
-
-    -- Update the bill record
-    UPDATE bill
-    SET 
-        amount_received = new_total_received,
-        balAmount = GREATEST(new_bal_amount, 0),  -- prevent negative balance
-        arrear = CASE 
-            WHEN new_bal_amount <= 0 THEN 0
-            ELSE arrear
-        END
-    WHERE id = NEW.bill_id;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE TRIGGER trg_update_bill_after_payment
-AFTER INSERT ON bill_payment
-FOR EACH ROW
-EXECUTE FUNCTION update_bill_after_payment();
 
 
 -- This procedure will sum the total bill amount (gTotal) 
