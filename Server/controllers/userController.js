@@ -34,13 +34,11 @@ const loginUser = async (req, res) => {
 
     const token = generateToken(user); // Generate JWT
     res.status(200).json({ message: "Login successful", token });
-
   } catch (err) {
     console.error("Error in loginUser:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Create a new bill
 const createBill = async (req, res) => {
@@ -107,23 +105,49 @@ const createBill = async (req, res) => {
     if (existing.length > 0) {
       return res.status(409).json({
         message: "A bill for this user already exists for the current month.",
-        existingBill: existing[0],
       });
     }
 
     // ✅ Calculate total and balance
     const charges = [
-      m_subs, saving, c_fund, messing, e_messing, sui_gas_per_day, sui_gas_25_percent,
-      tea_bar_mcs, dining_hall_charges, swpr, laundry, gar_mess, room_maint,
-      elec_charges_160_block, internet, svc_charges, sui_gas_boqs, sui_gas_166_cd,
-      sui_gas_166_block, lounge_160, rent_charges, fur_maint, sui_gas_elec_fts,
-      mat_charges, hc_wa, gym, cafe_maint_charges, dine_out, payamber,
-      student_societies_fund, dinner_ni_jscmcc_69, current_bill, arrear
+      m_subs,
+      saving,
+      c_fund,
+      messing,
+      e_messing,
+      sui_gas_per_day,
+      sui_gas_25_percent,
+      tea_bar_mcs,
+      dining_hall_charges,
+      swpr,
+      laundry,
+      gar_mess,
+      room_maint,
+      elec_charges_160_block,
+      internet,
+      svc_charges,
+      sui_gas_boqs,
+      sui_gas_166_cd,
+      sui_gas_166_block,
+      lounge_160,
+      rent_charges,
+      fur_maint,
+      sui_gas_elec_fts,
+      mat_charges,
+      hc_wa,
+      gym,
+      cafe_maint_charges,
+      dine_out,
+      payamber,
+      student_societies_fund,
+      dinner_ni_jscmcc_69,
+      current_bill,
+      arrear,
     ];
 
     const total = charges.reduce((acc, val) => acc + Number(val), 0);
     const totalToInsert = gTotal ?? total;
-    const balance = balAmount ?? (totalToInsert - Number(amount_received));
+    const balance = balAmount ?? totalToInsert - Number(amount_received);
 
     // ✅ Insert the bill
     const result = await queryDb(
@@ -140,13 +164,47 @@ const createBill = async (req, res) => {
         $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
       ) RETURNING *`,
       [
-        cms_id, rank, name, course, m_subs, saving, c_fund, messing, e_messing,
-        sui_gas_per_day, sui_gas_25_percent, tea_bar_mcs, dining_hall_charges, swpr,
-        laundry, gar_mess, room_maint, elec_charges_160_block, internet, svc_charges,
-        sui_gas_boqs, sui_gas_166_cd, sui_gas_166_block, lounge_160, rent_charges,
-        fur_maint, sui_gas_elec_fts, mat_charges, hc_wa, gym, cafe_maint_charges,
-        dine_out, payamber, student_societies_fund, dinner_ni_jscmcc_69,
-        current_bill, arrear, receipt_no, amount_received, totalToInsert, balance
+        cms_id,
+        rank,
+        name,
+        course,
+        m_subs,
+        saving,
+        c_fund,
+        messing,
+        e_messing,
+        sui_gas_per_day,
+        sui_gas_25_percent,
+        tea_bar_mcs,
+        dining_hall_charges,
+        swpr,
+        laundry,
+        gar_mess,
+        room_maint,
+        elec_charges_160_block,
+        internet,
+        svc_charges,
+        sui_gas_boqs,
+        sui_gas_166_cd,
+        sui_gas_166_block,
+        lounge_160,
+        rent_charges,
+        fur_maint,
+        sui_gas_elec_fts,
+        mat_charges,
+        hc_wa,
+        gym,
+        cafe_maint_charges,
+        dine_out,
+        payamber,
+        student_societies_fund,
+        dinner_ni_jscmcc_69,
+        current_bill,
+        arrear,
+        receipt_no,
+        amount_received,
+        totalToInsert,
+        balance,
       ]
     );
 
@@ -158,7 +216,6 @@ const createBill = async (req, res) => {
       message: "Bill created successfully",
       bill: result[0],
     });
-
   } catch (err) {
     console.error("Error in createBill:", err);
     if (err.code === "23505") {
@@ -166,10 +223,11 @@ const createBill = async (req, res) => {
         message: "A bill with this User ID or receipt number already exists",
       });
     }
-    res.status(500).json({ message: "Error creating bill", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error creating bill", error: err.message });
   }
 };
-
 
 // Get all bills
 const getBills = async (req, res) => {
