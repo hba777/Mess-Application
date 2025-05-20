@@ -67,6 +67,7 @@ CREATE TABLE bill (
     FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
 );
 
+
 --Bill Table New Stuff
 ALTER TABLE bill
 ADD COLUMN due_date DATE,
@@ -86,6 +87,15 @@ BEGIN
         CURRENT_DATE > due_date
         AND amount_received < gTotal
         AND status != 'Paid';
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete old bills
+CREATE OR REPLACE FUNCTION delete_old_bills()
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM bill
+    WHERE created_at < NOW() - INTERVAL '6 months';
 END;
 $$ LANGUAGE plpgsql;
 
