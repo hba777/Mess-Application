@@ -259,7 +259,7 @@ const MessBillEntry = () => {
   };
 
   const handleNavigateToDashboard = () => {
-    localStorage.removeItem("userBill"); // Clears all local storage
+    localStorage.removeItem("userBill"); // Clears local storage userBill
     navigate("/userDashboard");
   };
 
