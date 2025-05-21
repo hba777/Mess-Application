@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Utility function to calculate totals
@@ -35,23 +35,27 @@ const calculateTotals = (formData) => {
     "payamber",
     "student_societies_fund",
     "dinner_ni_jscmcc_69",
-    "current_bill",
-    "arrear",
+    "current_bill", // calculated separately
+    "arrear", // included in gtotal but not current_bill
   ];
 
-  let total = 0;
-
-  // Always parse fields fresh
+  // Total including arrear
+  let gtotal = 0;
   for (const key of chargeFields) {
-    total += parseFloat(formData[key]) || 0;
+    gtotal += parseFloat(formData[key]) || 0;
   }
 
-  const gtotal = total;
+  // Total excluding arrear (i.e., current bill)
+  const currentBill = chargeFields
+    .filter((key) => key !== "arrear" && key !== "current_bill")
+    .reduce((sum, key) => sum + (parseFloat(formData[key]) || 0), 0);
+
   const amountReceived = parseFloat(formData.amount_received) || 0;
   const balamount = gtotal - amountReceived;
 
   return {
     ...formData,
+    current_bill: currentBill.toFixed(2),
     gtotal,
     balamount,
   };
@@ -120,9 +124,63 @@ const MessBillEntry = () => {
   const location = useLocation();
 
   const [formData, setFormData] = useState(() => {
-    const stored = location.state?.formData || getStoredFormData();
-    return stored || getDefaultFormData();
+    // Don't calculate totals here yet — we'll do it in useEffect
+    return (
+      location.state?.formData || getStoredFormData() || getDefaultFormData()
+    );
   });
+
+  useEffect(() => {
+    const isStored = !location.state?.formData && getStoredFormData();
+    if (!isStored || !formData.cms_id) return;
+
+    const fetchPendingAmount = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/user/pending-amounts/${formData.cms_id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        let arrear = 0;
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Pending amount data:", data);
+          arrear = data.pending_amount || 0;
+        } else {
+          console.warn("Failed to fetch pending amount. Defaulting to 0.");
+        }
+
+        let updated = {
+          ...formData,
+          arrear,
+          gtotal: 0,
+          balamount: 0,
+        };
+
+        // 💡 If arrear is 0, then reset totals to 0
+        if (arrear == 0) {
+          updated = {
+            ...updated,
+            gtotal: 0,
+            balamount: 0,
+          };
+        }
+
+        setFormData(calculateTotals(updated));
+      } catch (err) {
+        console.error("Error fetching pending amount", err);
+      }
+    };
+
+    fetchPendingAmount();
+  }, []);
 
   const [errorMessages, setErrorMessages] = useState({});
   const [submissionMessage, setSubmissionMessage] = useState(null);
@@ -143,13 +201,7 @@ const MessBillEntry = () => {
   const handleReviewNav = async (e) => {
     e.preventDefault();
 
-    const requiredFields = [
-      "cms_id",
-      //  "rank",
-      //   "name",
-      "course",
-      // "receipt_no",
-    ];
+    const requiredFields = ["cms_id", "course"];
     const missingFields = requiredFields.filter((field) => !formData[field]);
 
     if (missingFields.length > 0) {
@@ -165,118 +217,58 @@ const MessBillEntry = () => {
       return;
     }
 
-    try {
-      // Fetch the pending amount (arrear) from the backend
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:5000/api/user/pending-amounts/${formData.cms_id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    // Only calculate totals again here to reflect any last-minute edits
+    const selectedKeys = [
+      "m_subs",
+      "saving",
+      "c_fund",
+      "messing",
+      "e_messing",
+      "sui_gas_per_day",
+      "sui_gas_25_percent",
+      "tea_bar_mcs",
+      "dining_hall_charges",
+      "swpr",
+      "laundry",
+      "gar_mess",
+      "room_maint",
+      "elec_charges_160_block",
+      "internet",
+      "svc_charges",
+      "sui_gas_boqs",
+      "sui_gas_166_cd",
+      "sui_gas_166_block",
+      "lounge_160",
+      "rent_charges",
+      "fur_maint",
+      "sui_gas_elec_fts",
+      "mat_charges",
+      "hc_wa",
+      "gym",
+      "cafe_maint_charges",
+      "dine_out",
+      "payamber",
+      "student_societies_fund",
+      "dinner_ni_jscmcc_69",
+      "current_bill",
+      "arrear",
+    ];
 
-      let pendingAmount = 0; // Default value for arrear
+    const calculatedTotal = selectedKeys
+      .reduce((sum, key) => sum + (parseFloat(formData[key]) || 0), 0)
+      .toFixed(2);
 
-      if (response.ok) {
-        // If the API call is successful, use the fetched pending amount
-        const data = await response.json();
-        pendingAmount = data.pending_amount || 0; // Fallback to 0 if pending_amount is not provided
-      } else {
-        console.warn("Failed to fetch pending amount. Defaulting to 0.");
-      }
+    const amountReceived = parseFloat(formData.amount_received || 0);
+    const balanceAmount = (calculatedTotal - amountReceived).toFixed(2);
 
-      // Update the formData with the fetched arrear value (or 0 if the API fails)
-      const updatedFormData = {
-        ...formData,
-        arrear: pendingAmount,
-      };
+    const newEntry = {
+      ...formData,
+      gtotal: calculatedTotal,
+      balamount: balanceAmount,
+    };
 
-      const selectedKeys = [
-        "m_subs",
-        "saving",
-        "c_fund",
-        "messing",
-        "e_messing",
-        "sui_gas_per_day",
-        "sui_gas_25_percent",
-        "tea_bar_mcs",
-        "dining_hall_charges",
-        "swpr",
-        "laundry",
-        "gar_mess",
-        "room_maint",
-        "elec_charges_160_block",
-        "internet",
-        "svc_charges",
-        "sui_gas_boqs",
-        "sui_gas_166_cd",
-        "sui_gas_166_block",
-        "lounge_160",
-        "rent_charges",
-        "fur_maint",
-        "sui_gas_elec_fts",
-        "mat_charges",
-        "hc_wa",
-        "gym",
-        "cafe_maint_charges",
-        "dine_out",
-        "payamber",
-        "student_societies_fund",
-        "dinner_ni_jscmcc_69",
-        "current_bill",
-        "arrear",
-      ];
-
-      const calculatedTotal = selectedKeys
-        .reduce((sum, key) => sum + (parseFloat(updatedFormData[key]) || 0), 0)
-        .toFixed(2);
-
-      const amountReceived = parseFloat(updatedFormData.amount_received || 0);
-      const balanceAmount = (calculatedTotal - amountReceived).toFixed(2);
-
-      const newEntry = {
-        ...updatedFormData,
-        gtotal: calculatedTotal,
-        balamount: balanceAmount,
-      };
-
-      console.log(newEntry);
-      setTimeout(() => setSubmissionMessage(null), 5000);
-      navigate("/reviewBill", { state: { formData: newEntry } });
-    } catch (error) {
-      console.error("Error fetching pending amount:", error);
-
-      // If there's an error, default arrear to 0 and proceed
-      const updatedFormData = {
-        ...formData,
-        arrear: 0,
-      };
-
-      const selectedKeys = [
-        // ... (same as above)
-      ];
-
-      const calculatedTotal = selectedKeys
-        .reduce((sum, key) => sum + (parseFloat(updatedFormData[key]) || 0), 0)
-        .toFixed(2);
-
-      const amountReceived = parseFloat(updatedFormData.amount_received || 0);
-      const balanceAmount = (calculatedTotal - amountReceived).toFixed(2);
-
-      const newEntry = {
-        ...updatedFormData,
-        gtotal: calculatedTotal,
-        balamount: balanceAmount,
-      };
-
-      console.log(newEntry);
-      setTimeout(() => setSubmissionMessage(null), 5000);
-      navigate("/reviewBill", { state: { formData: newEntry } });
-    }
+    setTimeout(() => setSubmissionMessage(null), 5000);
+    navigate("/reviewBill", { state: { formData: newEntry } });
   };
 
   const handleNavigateToDashboard = () => {
@@ -303,7 +295,8 @@ const MessBillEntry = () => {
         className="grid gap-5 max-w-4xl mx-auto grid-cols-1 md:grid-cols-2"
       >
         {Object.keys(formData).map((key) => {
-          if (["due_date", "created_at", "status", "receipt_no"].includes(key)) return null; // Skip these fields
+          if (["due_date", "created_at", "status", "receipt_no"].includes(key))
+            return null; // Skip these fields
 
           const isReadOnly = ["balAmount", "gTotal"].includes(key);
 
