@@ -3,52 +3,26 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 // Utility function to calculate totals
 const calculateTotals = (formData) => {
+  // Fields that make up the current bill
   const chargeFields = [
-    "m_subs",
-    "saving",
-    "c_fund",
-    "messing",
-    "e_messing",
-    "sui_gas_per_day",
-    "sui_gas_25_percent",
-    "tea_bar_mcs",
-    "dining_hall_charges",
-    "swpr",
-    "laundry",
-    "gar_mess",
-    "room_maint",
-    "elec_charges_160_block",
-    "internet",
-    "svc_charges",
-    "sui_gas_boqs",
-    "sui_gas_166_cd",
-    "sui_gas_166_block",
-    "lounge_160",
-    "rent_charges",
-    "fur_maint",
-    "sui_gas_elec_fts",
-    "mat_charges",
-    "hc_wa",
-    "gym",
-    "cafe_maint_charges",
-    "dine_out",
-    "payamber",
-    "student_societies_fund",
-    "dinner_ni_jscmcc_69",
-    "current_bill", // calculated separately
-    "arrear", // included in gtotal but not current_bill
+    "m_subs", "saving", "c_fund", "messing", "e_messing",
+    "sui_gas_per_day", "sui_gas_25_percent", "tea_bar_mcs",
+    "dining_hall_charges", "swpr", "laundry", "gar_mess",
+    "room_maint", "elec_charges_160_block", "internet",
+    "svc_charges", "sui_gas_boqs", "sui_gas_166_cd",
+    "sui_gas_166_block", "lounge_160", "rent_charges",
+    "fur_maint", "sui_gas_elec_fts", "mat_charges",
+    "hc_wa", "gym", "cafe_maint_charges", "dine_out",
+    "payamber", "student_societies_fund", "dinner_ni_jscmcc_69"
   ];
 
-  // Total including arrear
-  let gtotal = 0;
-  for (const key of chargeFields) {
-    gtotal += parseFloat(formData[key]) || 0;
-  }
+  // Always calculate fresh
+  const currentBill = chargeFields.reduce((sum, key) => {
+    return sum + (parseFloat(formData[key]) || 0);
+  }, 0);
 
-  // Total excluding arrear (i.e., current bill)
-  const currentBill = chargeFields
-    .filter((key) => key !== "arrear" && key !== "current_bill")
-    .reduce((sum, key) => sum + (parseFloat(formData[key]) || 0), 0);
+  const arrear = parseFloat(formData.arrear) || 0;
+  const gtotal = currentBill + arrear;
 
   const amountReceived = parseFloat(formData.amount_received) || 0;
   const balamount = gtotal - amountReceived;
@@ -60,6 +34,7 @@ const calculateTotals = (formData) => {
     balamount,
   };
 };
+
 
 const getDefaultFormData = () => ({
   cms_id: "",
@@ -188,37 +163,8 @@ const MessBillEntry = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    const updatedData = {
-      ...formData,
-      [name]: value,
-      gtotal: 0, // reset before recalc
-      balamount: 0,
-    };
-
-    setFormData(calculateTotals(updatedData));
-  };
-
-  const handleReviewNav = async (e) => {
-    e.preventDefault();
-
-    const requiredFields = ["cms_id", "course"];
-    const missingFields = requiredFields.filter((field) => !formData[field]);
-
-    if (missingFields.length > 0) {
-      const newErrorMessages = {};
-      missingFields.forEach((field) => {
-        newErrorMessages[field] = "This field is required.";
-      });
-      setErrorMessages((prev) => ({
-        ...prev,
-        ...newErrorMessages,
-        general: "Please fill in all mandatory fields.",
-      }));
-      return;
-    }
-
-    // Only calculate totals again here to reflect any last-minute edits
-    const selectedKeys = [
+    // Convert numeric fields to number
+    const numberFields = [
       "m_subs",
       "saving",
       "c_fund",
@@ -252,23 +198,45 @@ const MessBillEntry = () => {
       "dinner_ni_jscmcc_69",
       "current_bill",
       "arrear",
+      "amount_received",
     ];
 
-    const calculatedTotal = selectedKeys
-      .reduce((sum, key) => sum + (parseFloat(formData[key]) || 0), 0)
-      .toFixed(2);
+    const parsedValue = numberFields.includes(name)
+      ? parseFloat(value) || 0
+      : value;
 
-    const amountReceived = parseFloat(formData.amount_received || 0);
-    const balanceAmount = (calculatedTotal - amountReceived).toFixed(2);
-
-    const newEntry = {
+    const updatedData = {
       ...formData,
-      gtotal: calculatedTotal,
-      balamount: balanceAmount,
+      [name]: parsedValue,
+      gtotal: 0,
+      balamount: 0,
+      arrear: formData.arrear || 0,
     };
 
-    setTimeout(() => setSubmissionMessage(null), 5000);
-    navigate("/reviewBill", { state: { formData: newEntry } });
+    setFormData(calculateTotals(updatedData));
+  };
+
+  const handleReviewNav = async (e) => {
+    e.preventDefault();
+
+    const requiredFields = ["cms_id", "course"];
+    const missingFields = requiredFields.filter((field) => !formData[field]);
+
+    if (missingFields.length > 0) {
+      const newErrorMessages = {};
+      missingFields.forEach((field) => {
+        newErrorMessages[field] = "This field is required.";
+      });
+      setErrorMessages((prev) => ({
+        ...prev,
+        ...newErrorMessages,
+        general: "Please fill in all mandatory fields.",
+      }));
+      return;
+    }
+
+    
+    navigate("/reviewBill", { state: { formData: formData } });
   };
 
   const handleNavigateToDashboard = () => {
