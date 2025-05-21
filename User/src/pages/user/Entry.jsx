@@ -263,7 +263,7 @@ const MessBillEntry = () => {
         className="grid gap-5 max-w-4xl mx-auto grid-cols-1 md:grid-cols-2"
       >
         {Object.keys(formData).map((key) => {
-          if (["due_date", "created_at", "status", "receipt_no"].includes(key))
+          if (["due_date", "created_at", "status", "receipt_no", "id"].includes(key))
             return null; // Skip these fields
 
           const isReadOnly = ["balAmount", "gTotal"].includes(key);

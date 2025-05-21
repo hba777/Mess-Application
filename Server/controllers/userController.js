@@ -83,8 +83,8 @@ const createBill = async (req, res) => {
       arrear = 0,
       receipt_no,
       amount_received = 0,
-      gTotal,
-      balAmount,
+      gtotal,
+      balamount,
     } = req.body;
 
     receipt_no = null;
@@ -126,46 +126,8 @@ const createBill = async (req, res) => {
     //   });
     // }
 
-    // ✅ Calculate total and balance
-    const charges = [
-      m_subs,
-      saving,
-      c_fund,
-      messing,
-      e_messing,
-      sui_gas_per_day,
-      sui_gas_25_percent,
-      tea_bar_mcs,
-      dining_hall_charges,
-      swpr,
-      laundry,
-      gar_mess,
-      room_maint,
-      elec_charges_160_block,
-      internet,
-      svc_charges,
-      sui_gas_boqs,
-      sui_gas_166_cd,
-      sui_gas_166_block,
-      lounge_160,
-      rent_charges,
-      fur_maint,
-      sui_gas_elec_fts,
-      mat_charges,
-      hc_wa,
-      gym,
-      cafe_maint_charges,
-      dine_out,
-      payamber,
-      student_societies_fund,
-      dinner_ni_jscmcc_69,
-      current_bill,
-      arrear,
-    ];
-
-    const total = charges.reduce((acc, val) => acc + Number(val), 0);
-    const totalToInsert = gTotal ?? total;
-    const balance = balAmount ?? totalToInsert - Number(amount_received);
+    const totalToInsert = gtotal;
+    const balance = balamount;
 
     // ✅ Insert the bill
     const result = await queryDb(
