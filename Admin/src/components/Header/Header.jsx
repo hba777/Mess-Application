@@ -41,24 +41,14 @@ const Header = () => {
             </Link>
           </li>
 
-
-          {/* Get Users */}
-          {/* <li>
+          <li>
             <Link
-              to="/getUsers"
+              to="/deleteUser"
               className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
             >
-              Get Users
+              Delete User
             </Link>
-          </li> */}
-          {/* <li>
-            <Link
-              to="/addAdmin"
-              className="hover:text-blue-400 transition-colors duration-200 text-base sm:text-lg lg:text-xl"
-            >
-              Add Admin
-            </Link>
-          </li> */}
+          </li>
 
           <li>
             <Link

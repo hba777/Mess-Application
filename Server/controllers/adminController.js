@@ -152,6 +152,8 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Error deleting user", error: err });
   }
 };
+
+
 const getTotalUsers = async (req, res) => {
   try {
     const result = await queryDb(

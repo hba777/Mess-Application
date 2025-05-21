@@ -94,19 +94,19 @@ const createBill = async (req, res) => {
     }
 
     // ✅ Check if a bill already exists for this cms_id in the current month
-    const existing = await queryDb(
-      `SELECT * FROM bill 
-       WHERE cms_id = $1 
-       AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
-       AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
-      [cms_id]
-    );
+    // const existing = await queryDb(
+    //   `SELECT * FROM bill 
+    //    WHERE cms_id = $1 
+    //    AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
+    //    AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
+    //   [cms_id]
+    // );
 
-    if (existing.length > 0) {
-      return res.status(409).json({
-        message: "A bill for this user already exists for the current month.",
-      });
-    }
+    // if (existing.length > 0) {
+    //   return res.status(409).json({
+    //     message: "A bill for this user already exists for the current month.",
+    //   });
+    // }
 
     // ✅ Calculate total and balance
     const charges = [

@@ -16,6 +16,7 @@ import BillDetails from "./components/dashboard/Bills/BillDetails";
 import PaidBills from "./components/dashboard/Bills/PaidBill";
 import PaidBillDetails from "./components/dashboard/Bills/PaidBillDetails";
 import GetUsers from "./components/dashboard/GetUsers";
+import DeleteUser from "./components/dashboard/DeleteUser";
 
 // Create the router with route configuration
 const router = createHashRouter([
@@ -39,6 +40,7 @@ const router = createHashRouter([
       { path: "/paidBills", element: <PaidBills /> },
       { path: "/paidBillDetails", element: <PaidBillDetails /> },
       { path: "/getUsers", element: <GetUsers /> },
+      { path: "/deleteUser", element: <DeleteUser /> },
       { path: "/*", element: <ErrorPage /> },
     ],
   },
