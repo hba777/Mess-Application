@@ -109,6 +109,8 @@ const BillDetails = () => {
       20,
       detailsYStart + detailSpacing
     );
+    doc.text(`Receipt No: ${formData.receipt_no || ""}`, 20, detailsYStart + detailSpacing * 2.0);
+
     // doc.text(
     //   `Name:              ${formData.name || ""}`,
     //   20,
@@ -117,7 +119,7 @@ const BillDetails = () => {
     doc.text(
       `Course: ${formData.course || ""}`,
       20,
-      detailsYStart + detailSpacing * 2
+      detailsYStart + detailSpacing * 3
     );
 
     // Table properties

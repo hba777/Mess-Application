@@ -148,7 +148,7 @@ const MessBillEntry = () => {
       //  "rank",
       //   "name",
       "course",
-      "receipt_no",
+      // "receipt_no",
     ];
     const missingFields = requiredFields.filter((field) => !formData[field]);
 
@@ -303,7 +303,7 @@ const MessBillEntry = () => {
         className="grid gap-5 max-w-4xl mx-auto grid-cols-1 md:grid-cols-2"
       >
         {Object.keys(formData).map((key) => {
-          if (["due_date", "created_at", "status"].includes(key)) return null; // Skip these fields
+          if (["due_date", "created_at", "status", "receipt_no"].includes(key)) return null; // Skip these fields
 
           const isReadOnly = ["balAmount", "gTotal"].includes(key);
 
@@ -321,17 +321,11 @@ const MessBillEntry = () => {
               </label>
 
               <input
-                type={
-                  key === "receipt_no" ||
-                  ["course", "current_bill"].includes(key)
-                    ? "text"
-                    : "number"
-                }
                 id={key}
                 name={key}
                 value={formData[key]}
                 onChange={handleChange}
-                required={["cms_id", "course", "receipt_no"].includes(key)}
+                required={["cms_id", "course"].includes(key)}
                 readOnly={isReadOnly}
                 className={`p-2 border border-gray-600 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isReadOnly ? "bg-gray-200 cursor-not-allowed" : ""

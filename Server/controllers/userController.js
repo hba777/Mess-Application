@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
 // Create a new bill
 const createBill = async (req, res) => {
   try {
-    const {
+    let {
       cms_id,
       rank = null,
       name = null,
@@ -81,11 +81,29 @@ const createBill = async (req, res) => {
       dinner_ni_jscmcc_69 = 0,
       current_bill = 0,
       arrear = 0,
-      receipt_no = null,
+      receipt_no,
       amount_received = 0,
       gTotal,
       balAmount,
     } = req.body;
+
+    receipt_no = null;
+
+    const userExists = await queryDb(`SELECT * FROM users WHERE cms_id = $1`, [
+      cms_id,
+    ]);
+    if (!userExists.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Get next receipt_no from sequence
+    const seqResult = await queryDb(
+      `SELECT nextval('receipt_no_seq') AS next_receipt_no`
+    );
+    const nextReceiptNum = seqResult[0]?.next_receipt_no ?? 100000;
+
+    // Format as zero-padded 6-digit string
+    receipt_no = String(nextReceiptNum).padStart(6, "0");
 
     if (!cms_id || !course) {
       return res.status(400).json({
@@ -95,8 +113,8 @@ const createBill = async (req, res) => {
 
     // ✅ Check if a bill already exists for this cms_id in the current month
     // const existing = await queryDb(
-    //   `SELECT * FROM bill 
-    //    WHERE cms_id = $1 
+    //   `SELECT * FROM bill
+    //    WHERE cms_id = $1
     //    AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
     //    AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
     //   [cms_id]
@@ -201,7 +219,7 @@ const createBill = async (req, res) => {
         dinner_ni_jscmcc_69,
         current_bill,
         arrear,
-        receipt_no,
+        receipt_no, // use updated receipt_no here
         amount_received,
         totalToInsert,
         balance,
@@ -214,6 +232,7 @@ const createBill = async (req, res) => {
 
     res.status(201).json({
       message: "Bill created successfully",
+      receipt_no: result[0].receipt_no,
       bill: result[0],
     });
   } catch (err) {

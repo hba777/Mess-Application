@@ -24,8 +24,9 @@ function DetailComponent() {
       !formData.cms_id ||
       // !formData.rank ||
       // !formData.name ||
-      !formData.course ||
-      !formData.receipt_no
+      !formData.course
+      // ||
+      // !formData.receipt_no
     ) {
       console.error("Validation failed: Missing required fields");
       setErrorMessages((prev) => ({
@@ -110,12 +111,25 @@ function DetailComponent() {
         body: JSON.stringify(newEntry),
       });
 
-      console.log("Response status:", response.status);
+      const data = await response.json();
+
       if (!response.ok) {
-        const responseBody = await response.text();
-        console.error("Server error:", responseBody);
-        throw new Error("Failed to send data to the server: " + responseBody);
+        // 🛑 Show user not found toast
+        if (response.status === 404 && data.message === "User not found") {
+          toast.error("The User ID you entered does not exist.");
+        } else if (response.status === 400) {
+          toast.error(data.message || "Invalid request");
+        } else if (response.status === 409) {
+          toast.error("A bill already exists for this user this month.");
+        } else {
+          toast.error("An error occurred while creating the bill.");
+        }
+        setLoading(false);
+        return; // ❗ Do NOT proceed further
       }
+      // Update formData with new receipt_no from response
+      formData.receipt_no =
+        data.receipt_no || data.bill?.receipt_no || formData.receipt_no;
 
       console.log("Data successfully sent to server");
       setErrorMessages({});
@@ -171,8 +185,11 @@ function DetailComponent() {
     doc.text(
       `1LINK ID: ${BILL_ID_LABEL || ""}`,
       20,
-      detailsYStart + detailSpacing * 1.5
+      detailsYStart + detailSpacing * 1.2
     );
+
+    doc.text(`Receipt No: ${formData.receipt_no || ""}`, 20, detailsYStart + detailSpacing * 2.1);
+
     // doc.text(
     //   `Name:              ${formData.name || ""}`,
     //   20,
@@ -413,7 +430,8 @@ function DetailComponent() {
                       "course",
                       "due_date",
                       "created_at",
-                      "status"
+                      "status",
+                      "receipt_no",
                     ].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
                         <td className="py-2 px-4 border-b border-gray-700">
