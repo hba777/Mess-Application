@@ -24,8 +24,9 @@ function DetailComponent() {
       !formData.cms_id ||
       // !formData.rank ||
       // !formData.name ||
-      !formData.course ||
-      !formData.receipt_no
+      !formData.course
+      // ||
+      // !formData.receipt_no
     ) {
       console.error("Validation failed: Missing required fields");
       setErrorMessages((prev) => ({
@@ -37,65 +38,8 @@ function DetailComponent() {
 
     console.log("All required fields are present");
 
-    const selectedKeys = [
-      "m_subs",
-      "saving",
-      "c_fund",
-      "messing",
-      "e_messing",
-      "sui_gas_per_day",
-      "sui_gas_25_percent",
-      "tea_bar_mcs",
-      "dining_hall_charges",
-      "swpr",
-      "laundry",
-      "gar_mess",
-      "room_maint",
-      "elec_charges_160_block",
-      "internet",
-      "svc_charges",
-      "sui_gas_boqs",
-      "sui_gas_166_cd",
-      "sui_gas_166_block",
-      "lounge_160",
-      "rent_charges",
-      "fur_maint",
-      "sui_gas_elec_fts",
-      "mat_charges",
-      "hc_wa",
-      "gym",
-      "cafe_maint_charges",
-      "dine_out",
-      "payamber",
-      "student_societies_fund",
-      "dinner_ni_jscmcc_69",
-      "current_bill",
-      "arrear",
-    ];
 
-    console.log("Calculating total for selected keys:", selectedKeys);
-
-    const calculatedTotal = selectedKeys.reduce((sum, key) => {
-      const value = parseFloat(formData[key] || 0);
-      console.log(`Adding ${key}:`, value);
-      return sum + value;
-    }, 0);
-
-    console.log("Calculated total amount:", calculatedTotal);
-
-    const amountReceived = parseFloat(formData.amount_received || 0);
-    console.log("Amount received:", amountReceived);
-
-    const balanceAmount = calculatedTotal - amountReceived;
-    console.log("Balance amount:", balanceAmount);
-
-    const newEntry = {
-      ...formData,
-      gtotal: calculatedTotal,
-      balamount: balanceAmount,
-    };
-
-    console.log("New entry to be sent:", newEntry);
+    console.log("New entry to be sent:", formData);
 
     try {
       const token = localStorage.getItem("token");
@@ -107,15 +51,28 @@ function DetailComponent() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newEntry),
+        body: JSON.stringify(formData),
       });
 
-      console.log("Response status:", response.status);
+      const data = await response.json();
+
       if (!response.ok) {
-        const responseBody = await response.text();
-        console.error("Server error:", responseBody);
-        throw new Error("Failed to send data to the server: " + responseBody);
+        // 🛑 Show user not found toast
+        if (response.status === 404 && data.message === "User not found") {
+          toast.error("The User ID you entered does not exist.");
+        } else if (response.status === 400) {
+          toast.error(data.message || "Invalid request");
+        } else if (response.status === 409) {
+          toast.error("A bill already exists for this user this month.");
+        } else {
+          toast.error("An error occurred while creating the bill.");
+        }
+        setLoading(false);
+        return; // ❗ Do NOT proceed further
       }
+      // Update formData with new receipt_no from response
+      formData.receipt_no =
+        data.receipt_no || data.bill?.receipt_no || formData.receipt_no;
 
       console.log("Data successfully sent to server");
       setErrorMessages({});
@@ -171,8 +128,11 @@ function DetailComponent() {
     doc.text(
       `1LINK ID: ${BILL_ID_LABEL || ""}`,
       20,
-      detailsYStart + detailSpacing * 1.5
+      detailsYStart + detailSpacing * 1.2
     );
+
+    doc.text(`Receipt No: ${formData.receipt_no || ""}`, 20, detailsYStart + detailSpacing * 2.1);
+
     // doc.text(
     //   `Name:              ${formData.name || ""}`,
     //   20,
@@ -413,7 +373,8 @@ function DetailComponent() {
                       "course",
                       "due_date",
                       "created_at",
-                      "status"
+                      "status",
+                      "receipt_no",
                     ].includes(key) && (
                       <tr key={key} className="even:bg-gray-800">
                         <td className="py-2 px-4 border-b border-gray-700">

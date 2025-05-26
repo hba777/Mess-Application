@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
 // Create a new bill
 const createBill = async (req, res) => {
   try {
-    const {
+    let {
       cms_id,
       rank = null,
       name = null,
@@ -81,11 +81,29 @@ const createBill = async (req, res) => {
       dinner_ni_jscmcc_69 = 0,
       current_bill = 0,
       arrear = 0,
-      receipt_no = null,
+      receipt_no,
       amount_received = 0,
-      gTotal,
-      balAmount,
+      gtotal,
+      balamount,
     } = req.body;
+
+    receipt_no = null;
+
+    const userExists = await queryDb(`SELECT * FROM users WHERE cms_id = $1`, [
+      cms_id,
+    ]);
+    if (!userExists.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Get next receipt_no from sequence
+    const seqResult = await queryDb(
+      `SELECT nextval('receipt_no_seq') AS next_receipt_no`
+    );
+    const nextReceiptNum = seqResult[0]?.next_receipt_no ?? 100000;
+
+    // Format as zero-padded 6-digit string
+    receipt_no = String(nextReceiptNum).padStart(6, "0");
 
     if (!cms_id || !course) {
       return res.status(400).json({
@@ -94,60 +112,22 @@ const createBill = async (req, res) => {
     }
 
     // ✅ Check if a bill already exists for this cms_id in the current month
-    const existing = await queryDb(
-      `SELECT * FROM bill 
-       WHERE cms_id = $1 
-       AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
-       AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
-      [cms_id]
-    );
+    // const existing = await queryDb(
+    //   `SELECT * FROM bill
+    //    WHERE cms_id = $1
+    //    AND DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE)
+    //    AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE)`,
+    //   [cms_id]
+    // );
 
-    if (existing.length > 0) {
-      return res.status(409).json({
-        message: "A bill for this user already exists for the current month.",
-      });
-    }
+    // if (existing.length > 0) {
+    //   return res.status(409).json({
+    //     message: "A bill for this user already exists for the current month.",
+    //   });
+    // }
 
-    // ✅ Calculate total and balance
-    const charges = [
-      m_subs,
-      saving,
-      c_fund,
-      messing,
-      e_messing,
-      sui_gas_per_day,
-      sui_gas_25_percent,
-      tea_bar_mcs,
-      dining_hall_charges,
-      swpr,
-      laundry,
-      gar_mess,
-      room_maint,
-      elec_charges_160_block,
-      internet,
-      svc_charges,
-      sui_gas_boqs,
-      sui_gas_166_cd,
-      sui_gas_166_block,
-      lounge_160,
-      rent_charges,
-      fur_maint,
-      sui_gas_elec_fts,
-      mat_charges,
-      hc_wa,
-      gym,
-      cafe_maint_charges,
-      dine_out,
-      payamber,
-      student_societies_fund,
-      dinner_ni_jscmcc_69,
-      current_bill,
-      arrear,
-    ];
-
-    const total = charges.reduce((acc, val) => acc + Number(val), 0);
-    const totalToInsert = gTotal ?? total;
-    const balance = balAmount ?? totalToInsert - Number(amount_received);
+    const totalToInsert = gtotal;
+    const balance = balamount;
 
     // ✅ Insert the bill
     const result = await queryDb(
@@ -201,7 +181,7 @@ const createBill = async (req, res) => {
         dinner_ni_jscmcc_69,
         current_bill,
         arrear,
-        receipt_no,
+        receipt_no, // use updated receipt_no here
         amount_received,
         totalToInsert,
         balance,
@@ -214,6 +194,7 @@ const createBill = async (req, res) => {
 
     res.status(201).json({
       message: "Bill created successfully",
+      receipt_no: result[0].receipt_no,
       bill: result[0],
     });
   } catch (err) {

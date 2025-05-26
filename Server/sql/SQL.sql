@@ -67,6 +67,34 @@ CREATE TABLE bill (
     FOREIGN KEY (cms_id) REFERENCES users(cms_id) ON DELETE CASCADE
 );
 
+--Reciept Auto generation
+-- Create the sequence starting at 100000
+CREATE SEQUENCE receipt_no_seq
+  START 100000
+  INCREMENT 1
+  MINVALUE 100000
+  MAXVALUE 999999
+  CYCLE;  -- If you want to cycle back after 999999
+
+-- Modify the table, make receipt_no nullable (remove default) because it'll be set by trigger
+ALTER TABLE bill ALTER COLUMN receipt_no DROP DEFAULT;
+
+-- Create the trigger function to set receipt_no before insert
+CREATE OR REPLACE FUNCTION set_receipt_no()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.receipt_no IS NULL THEN
+    NEW.receipt_no := TO_CHAR(nextval('receipt_no_seq'), 'FM000000');  -- Format as 6 digit string with leading zeros
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger on the bill table
+CREATE TRIGGER receipt_no_before_insert
+BEFORE INSERT ON bill
+FOR EACH ROW
+EXECUTE FUNCTION set_receipt_no();
 
 --Bill Table New Stuff
 ALTER TABLE bill
