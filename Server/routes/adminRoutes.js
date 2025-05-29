@@ -11,6 +11,8 @@ const {
   getTotalPendingBills,
   getTotalPaidBills,
   getTotalUsersWhoPaid,
+  markOverdueBills,
+  deleteOldBills
 } = require("../controllers/adminController");
 
 const { authenticateJWT, isAdmin } = require("../middleware/authMiddleware");
@@ -38,5 +40,10 @@ router.get("/total-users", getTotalUsers);
 router.get("/total-pending-bills", getTotalPendingBills);
 router.get("/total-paid-bills", getTotalPaidBills);
 router.get("/total-users-who-paid", getTotalUsersWhoPaid);
+// Mark overdue bills (Admin Only)
+router.patch("/mark-overdue-bills", isAdmin, markOverdueBills);
+
+// Delete old bills (Admin Only)
+router.delete("/delete-old-bills", isAdmin, deleteOldBills);
 
 module.exports = router;

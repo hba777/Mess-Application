@@ -142,25 +142,6 @@ CREATE TABLE bill_payment (
     FOREIGN KEY (payer_cms_id) REFERENCES users(cms_id) ON DELETE SET NULL
 );
 
-
--- This procedure will sum the total bill amount (gTotal) 
--- and subtract the total received amount (amount_received) for each cms_id
--- CREATE OR REPLACE FUNCTION track_pending_amount()
--- RETURNS TABLE (cms_id INT, total_billed NUMERIC(10,2), total_paid NUMERIC(10,2), pending_amount NUMERIC(10,2))
--- LANGUAGE plpgsql
--- AS $$
--- BEGIN
---     RETURN QUERY
---     SELECT 
---         b.cms_id, 
---         COALESCE(SUM(b.gTotal), 0) AS total_billed, 
---         COALESCE(SUM(b.amount_received), 0) AS total_paid, 
---         (COALESCE(SUM(b.gTotal), 0) - COALESCE(SUM(b.amount_received), 0)) AS pending_amount
---     FROM bill b
---     GROUP BY b.cms_id;
--- END;
--- $$;
-
 CREATE OR REPLACE FUNCTION track_pending_amount(p_cms_id INT)
 RETURNS NUMERIC(10,2)
 LANGUAGE plpgsql

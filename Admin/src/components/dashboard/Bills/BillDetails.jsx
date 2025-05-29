@@ -426,7 +426,7 @@ const BillDetails = () => {
             </thead>
             <tbody>
               {Object.entries(formData)
-                .filter(([key]) => !["id", "rank", "name", "created_at", "status", "due_date"].includes(key)) // Exclude id, rank, and name
+                .filter(([key]) => !["id", "rank", "name", "created_at", "due_date"].includes(key)) // Exclude id, rank, and name
                 .map(([key, value], index) => (
                   <tr
                     key={key}
