@@ -126,23 +126,28 @@ const createBill = async (req, res) => {
     //   });
     // }
 
+    // Calculate due_date as the 8th of the next month
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 8);
+    const due_date = nextMonth.toISOString().split("T")[0]; // Format as 'YYYY-MM-DD'
+
     const totalToInsert = gtotal;
     const balance = balamount;
 
     // ✅ Insert the bill
     const result = await queryDb(
       `INSERT INTO bill (
-        cms_id, rank, name, course, m_subs, saving, c_fund, messing, e_messing,
-        sui_gas_per_day, sui_gas_25_percent, tea_bar_mcs, dining_hall_charges, swpr,
-        laundry, gar_mess, room_maint, elec_charges_160_block, internet, svc_charges,
-        sui_gas_boqs, sui_gas_166_cd, sui_gas_166_block, lounge_160, rent_charges,
-        fur_maint, sui_gas_elec_fts, mat_charges, hc_wa, gym, cafe_maint_charges,
-        dine_out, payamber, student_societies_fund, dinner_ni_jscmcc_69,
-        current_bill, arrear, receipt_no, amount_received, gTotal, balAmount
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
-      ) RETURNING *`,
+    cms_id, rank, name, course, m_subs, saving, c_fund, messing, e_messing,
+    sui_gas_per_day, sui_gas_25_percent, tea_bar_mcs, dining_hall_charges, swpr,
+    laundry, gar_mess, room_maint, elec_charges_160_block, internet, svc_charges,
+    sui_gas_boqs, sui_gas_166_cd, sui_gas_166_block, lounge_160, rent_charges,
+    fur_maint, sui_gas_elec_fts, mat_charges, hc_wa, gym, cafe_maint_charges,
+    dine_out, payamber, student_societies_fund, dinner_ni_jscmcc_69,
+    current_bill, arrear, receipt_no, amount_received, gTotal, balAmount, due_date
+  ) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+    $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
+  ) RETURNING *`,
       [
         cms_id,
         rank,
@@ -181,10 +186,11 @@ const createBill = async (req, res) => {
         dinner_ni_jscmcc_69,
         current_bill,
         arrear,
-        receipt_no, // use updated receipt_no here
+        receipt_no,
         amount_received,
         totalToInsert,
         balance,
+        due_date,
       ]
     );
 

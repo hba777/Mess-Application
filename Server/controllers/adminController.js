@@ -202,6 +202,28 @@ const getTotalUsersWhoPaid = async (req, res) => {
   }
 };
 
+// Mark overdue bills
+const markOverdueBills = async (req, res) => {
+  try {
+    await queryDb("SELECT mark_overdue_bills()");
+    res.status(200).json({ message: "Overdue bills marked successfully" });
+  } catch (err) {
+    console.error("Error in markOverdueBills:", err);
+    res.status(500).json({ message: "Failed to mark overdue bills" });
+  }
+};
+
+// Delete old bills
+const deleteOldBills = async (req, res) => {
+  try {
+    await queryDb("SELECT delete_old_bills()");
+    res.status(200).json({ message: "Old bills deleted successfully" });
+  } catch (err) {
+    console.error("Error in deleteOldBills:", err);
+    res.status(500).json({ message: "Failed to delete old bills" });
+  }
+};
+
 
 module.exports = {
   loginAdmin,
@@ -213,4 +235,6 @@ module.exports = {
   getTotalPendingBills,
   getTotalPaidBills,
   getTotalUsersWhoPaid,
+  markOverdueBills,
+  deleteOldBills
 };

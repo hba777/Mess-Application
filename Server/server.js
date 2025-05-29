@@ -20,7 +20,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:2000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
